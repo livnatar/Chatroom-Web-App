@@ -10,8 +10,8 @@
 
             event.preventDefault();
             // Get values from form inputs and trim spaces
-            const email = document.getElementById('email').value.trim();
-            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('emailAddress').value.trim();
+            const name = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
 
             // Combine all values into a single object
