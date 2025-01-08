@@ -6,7 +6,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
-        document.getElementById("next").addEventListener('submit', (event) =>{
+        document.getElementById("registerForm").addEventListener('submit', (event) =>{
 
             event.preventDefault();
             // Get values from form inputs and trim spaces
