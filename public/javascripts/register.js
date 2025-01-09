@@ -1,41 +1,26 @@
 
 
 import { validateForm } from './validationModule.js';
+import { setCookie, getCookie } from './cookieUtils.js';
 
 
 (function() {
 
     document.addEventListener('DOMContentLoaded', function () {
 
-        const setCookie = function(cname, cvalue, seconds){
-            const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
-            document.cookie = `${cname}=${cvalue}; expires=${d.toUTCString()}; path=/`;
-        };
-
-        const  getCookie = function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            else return null;
-        };
-
-        function insertDataFromCookie() {
-
-            const cookieData = getCookie('userInfo');
-            if (cookieData) {
-                // Parse the cookie data as JSON
-                const userData = JSON.parse(cookieData);
-
-                // Populate form inputs
-                document.getElementById("emailAddress").value = userData.email || "";
-                document.getElementById("firstName").value = userData.firstName || "";
-                document.getElementById("lastName").value = userData.lastName || "";
-            }
-        }
-
+        // const setCookie = function(cname, cvalue, seconds){
+        //     const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
+        //     document.cookie = `${cname}=${cvalue}; expires=${d.toUTCString()}; path=/`;
+        // };
+        //
+        // const  getCookie = function getCookie(name) {
+        //     const value = `; ${document.cookie}`;
+        //     const parts = value.split(`; ${name}=`);
+        //     if (parts.length === 2) return parts.pop().split(';').shift();
+        //     else return null;
+        // };
 
         const registerForm = document.getElementById("registerForm");
-
         // Register form submission
         registerForm.addEventListener('submit', function (event) {
             event.preventDefault(); // Prevent form submission to allow validation
@@ -56,6 +41,20 @@ import { validateForm } from './validationModule.js';
                 registerForm.submit(); // Submit the form if validation is successful
             }
         });
+
+        function insertDataFromCookie() {
+
+            const cookieData = getCookie('userInfo');
+            if (cookieData) {
+                // Parse the cookie data as JSON
+                const userData = JSON.parse(cookieData);
+
+                // Populate form inputs
+                document.getElementById("emailAddress").value = userData.email || "";
+                document.getElementById("firstName").value = userData.firstName || "";
+                document.getElementById("lastName").value = userData.lastName || "";
+            }
+        }
 
         insertDataFromCookie();
 

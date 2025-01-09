@@ -24,10 +24,10 @@ router.post('/', function (req, res, next) {
     const { emailAddress, firstName, lastName } = req.body;
 
     // Combine user data into a single object
-    const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
+    //const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
 
     // Set the user data as a cookie (expires in 30 seconds)
-    res.cookie('userInfo', userData, { maxAge: 30000, httpOnly: true });
+   // res.cookie('userInfo', userData, { maxAge: 30000 });
 
     // Redirect to the password creation page
     res.redirect('/register/password');
