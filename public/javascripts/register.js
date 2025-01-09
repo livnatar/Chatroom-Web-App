@@ -7,6 +7,33 @@ import { validateForm } from './validationModule.js';
 
     document.addEventListener('DOMContentLoaded', function () {
 
+        const setCookie = function(cname, cvalue, seconds){
+            const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
+            document.cookie = `${cname}=${cvalue}; expires=${d.toUTCString()}; path=/`;
+        };
+
+        const  getCookie = function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            else return null;
+        };
+
+        function insertDataFromCookie() {
+
+            const cookieData = getCookie('userInfo');
+            if (cookieData) {
+                // Parse the cookie data as JSON
+                const userData = JSON.parse(cookieData);
+
+                // Populate form inputs
+                document.getElementById("emailAddress").value = userData.email || "";
+                document.getElementById("firstName").value = userData.firstName || "";
+                document.getElementById("lastName").value = userData.lastName || "";
+            }
+        }
+
+
         const registerForm = document.getElementById("registerForm");
 
         // Register form submission
@@ -31,33 +58,6 @@ import { validateForm } from './validationModule.js';
         });
 
         insertDataFromCookie();
-
-        function insertDataFromCookie() {
-
-            const cookieData = getCookie('userInfo');
-            if (cookieData) {
-                // Parse the cookie data as JSON
-                const userData = JSON.parse(cookieData);
-
-                // Populate form inputs
-                document.getElementById("emailAddress").value = userData.email || "";
-                document.getElementById("firstName").value = userData.firstName || "";
-                document.getElementById("lastName").value = userData.lastName || "";
-            }
-        }
-
-        const setCookie = function(cname, cvalue, seconds){
-                    const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
-                    document.cookie = `${cname}=${cvalue}; expires=${d.toUTCString()}; path=/`;
-                };
-
-        const  getCookie = function getCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-                else return null;
-            }
-
 
 
     });
