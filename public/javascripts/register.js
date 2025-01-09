@@ -1,3 +1,5 @@
+
+
 import { validateForm } from './validationModule.js';
 
 
@@ -7,6 +9,7 @@ import { validateForm } from './validationModule.js';
 
         const registerForm = document.getElementById("registerForm");
 
+        // Register form submission
         registerForm.addEventListener('submit', function (event) {
             event.preventDefault(); // Prevent form submission to allow validation
 
@@ -29,20 +32,19 @@ import { validateForm } from './validationModule.js';
 
         insertDataFromCookie();
 
-        const insertDataFromCookie = function(){
+        function insertDataFromCookie() {
 
             const cookieData = getCookie('userInfo');
-            if(cookieData){
+            if (cookieData) {
+                // Parse the cookie data as JSON
+                const userData = JSON.parse(cookieData);
 
-                document.getElementById("emailAddress").value = cookieData.email;
-                document.getElementById("firstName").value = cookieData.firstName ;
-                document.getElementById("lastName").value = cookieData.lastName ;
-
+                // Populate form inputs
+                document.getElementById("emailAddress").value = userData.email || "";
+                document.getElementById("firstName").value = userData.firstName || "";
+                document.getElementById("lastName").value = userData.lastName || "";
             }
-
-
-
-        };
+        }
 
         const setCookie = function(cname, cvalue, seconds){
                     const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
