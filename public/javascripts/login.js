@@ -1,17 +1,18 @@
 
+import { validateForm } from './validationModule.js';
 
 (function() {
 
-    const validation = require('/models/validation.js');
-
     document.addEventListener('DOMContentLoaded', function () {
+        const loginForm = document.getElementById("loginForm");
 
-        document.getElementById("signIn").addEventListener('submit', () =>{
-            //validation
+        loginForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission to allow validation
+
+            if (validateForm("loginForm")) {
+                loginForm.submit(); // Submit the form if validation is successful
+            }
         });
-
     });
 
 })();
-
-
