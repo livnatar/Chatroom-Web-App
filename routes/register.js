@@ -5,7 +5,7 @@ var router = express.Router();
 
 /* GET register page */
 router.get('/', function(req, res, next) {
-    res.render('register', { title: 'Chatroom Register' });
+    res.render('register');
 });
 
 
@@ -23,6 +23,15 @@ router.get('/', function(req, res, next) {
 router.post('/', function (req, res, next) {
     const { emailAddress, firstName, lastName } = req.body;
 
+    // // add here the part that if mail already exists cannot register again {msg: "Email already registered, try again"} -
+    // // the inputs do not go away- the message appears and the inputs (means we save them in cookies)
+    // if (emailAddress){ // inside the database
+    //     res.render('register', {msg: 'Email already registered, try again'});
+    // }
+    // else {
+    //    the rest of the code
+    // }
+
     // Combine user data into a single object
     //const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
 
@@ -33,7 +42,7 @@ router.post('/', function (req, res, next) {
     res.redirect('/register/create-password');
 });
 
-// // Handle GET request for the password creation page
+// Handle GET request for the password creation page
 // router.get('/password', function(req, res, next) {
 //     res.render('createPassword', { title: 'Choose a Password' });
 // });
@@ -46,7 +55,7 @@ router.get('/create-password', function (req, res, next) {
         // Redirect back to the register page if the cookie is missing or expired
         res.redirect('/register');
     } else {
-        res.render('createPassword', { title: 'Choose a Password' });
+        res.render('createPassword', {msg: ''}); //for he validation later on
     }
 });
 
