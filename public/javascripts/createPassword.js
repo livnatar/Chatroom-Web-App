@@ -1,4 +1,3 @@
-//
 
 import { validateForm } from './validationModule.js';
 import { getCookie } from './cookieUtils.js';
@@ -6,8 +5,11 @@ import { getCookie } from './cookieUtils.js';
 (function() {
     document.addEventListener('DOMContentLoaded', function () {
 
-        // Monitor the cookie expiration periodically
-       // monitorCookie();
+        // Check for the cookie immediately when the page loads
+        checkCookie();
+
+        // Set interval to monitor the cookie expiration periodically
+        setInterval(checkCookie, 5000); // Check every 5 seconds
 
         const createPasswordForm = document.getElementById("createPasswordForm");
 
@@ -19,33 +21,29 @@ import { getCookie } from './cookieUtils.js';
             }
         });
 
-        // Monitor the cookie periodically to check if it's expired
-        function monitorCookie() {
+        // Function to check the cookie
+        function checkCookie() {
             const userInfo = getCookie('userInfo');
             if (!userInfo) {
-                // If the cookie is not found (i.e., expired), redirect to registration
+                console.log('The cookie is missing or expired');
+                // If the cookie is missing or expired, redirect to registration
                 window.location.href = '/register';
+            } else {
+                console.log(`The cookie: ${userInfo}`);
             }
         }
-
-        // Set interval to monitor the cookie expiration periodically
-        setInterval(monitorCookie, 5000); // check every 5 seconds
-
     });
 })();
 
 
-//
 // import { validateForm } from './validationModule.js';
 // import { getCookie } from './cookieUtils.js';
 //
-//
 // (function() {
-//
 //     document.addEventListener('DOMContentLoaded', function () {
 //
-//         // Monitor the cookie periodically
-//         monitorCookie();
+//         // Monitor the cookie expiration periodically
+//        // monitorCookie();
 //
 //         const createPasswordForm = document.getElementById("createPasswordForm");
 //
@@ -57,20 +55,22 @@ import { getCookie } from './cookieUtils.js';
 //             }
 //         });
 //
+//         // Monitor the cookie periodically to check if it's expired
 //         function monitorCookie() {
-//             setInterval(() => {
-//                 const userInfo = getCookie('userInfo');
-//                 if (!userInfo) {
-//                     window.location.href = '/register';
-//                 }
-//             }, 5000); // Check every 5 seconds
+//             const userInfo = getCookie('userInfo');
+//             if (!userInfo) {
+//                 console.log('the cookie is empty');
+//                 // If the cookie is not found (i.e., expired), redirect to registration
+//                 window.location.href = '/register';
+//             }
+//             else{
+//                 console.log(`the cookie : ${userInfo}`)
+//             }
 //         }
 //
+//         // Set interval to monitor the cookie expiration periodically
+//         setInterval(monitorCookie, 5000); // check every 5 seconds
 //
-//
-//         });
-//
-//
+//     });
 // })();
-//
-//
+
