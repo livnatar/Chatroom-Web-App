@@ -7,7 +7,7 @@ import { getCookie } from './cookieUtils.js';
     document.addEventListener('DOMContentLoaded', function () {
 
         // Monitor the cookie expiration periodically
-        monitorCookie();
+       // monitorCookie();
 
         const createPasswordForm = document.getElementById("createPasswordForm");
 
@@ -21,14 +21,15 @@ import { getCookie } from './cookieUtils.js';
 
         // Monitor the cookie periodically to check if it's expired
         function monitorCookie() {
-            setInterval(() => {
-                const userInfo = getCookie('userInfo');
-                if (!userInfo) {
-                    // If the cookie is not found (i.e., expired), redirect to registration
-                    window.location.href = '/register';
-                }
-            }, 1000); // Check every second
+            const userInfo = getCookie('userInfo');
+            if (!userInfo) {
+                // If the cookie is not found (i.e., expired), redirect to registration
+                window.location.href = '/register';
+            }
         }
+
+        // Set interval to monitor the cookie expiration periodically
+        setInterval(monitorCookie, 5000); // check every 5 seconds
 
     });
 })();
