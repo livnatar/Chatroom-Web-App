@@ -8,8 +8,8 @@ router.get('/', function(req, res, next) {
     res.render('login', { title: 'Chatroom Login' });
 });
 
-router.get('/hii', function(req, res, next) {
-    res.render('register', { title: 'Chatroom hii.' });
+router.get('/login-success', function(req, res, next) {
+    res.render('login', { msg: 'Registration successful, you can now login' });
 });
 
 

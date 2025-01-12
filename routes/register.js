@@ -30,7 +30,7 @@ router.post('/', function (req, res, next) {
    // res.cookie('userInfo', userData, { maxAge: 30000 });
 
     // Redirect to the password creation page
-    res.redirect('/register/password');
+    res.redirect('/register/create-password');
 });
 
 // // Handle GET request for the password creation page
@@ -39,7 +39,7 @@ router.post('/', function (req, res, next) {
 // });
 
 // Handle GET request for the password creation page
-router.get('/password', function (req, res, next) {
+router.get('/create-password', function (req, res, next) {
     // Check if the userInfo cookie exists
     const userInfo = req.cookies.userInfo;
     if (!userInfo) {
@@ -62,7 +62,7 @@ router.post('/create-password', function (req, res, next) {
     res.clearCookie('userInfo');
 
     // Redirect to a success or login page
-    res.redirect('/login');
+    res.redirect('/login-success');
 });
 
 
