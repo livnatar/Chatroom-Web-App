@@ -41,10 +41,30 @@ router.get('/login-success', function(req, res, next) {
 });
 
 
-router.get('/chatroom', function(req, res, next) {
-    res.render('chatroom');
+router.post('/chatroom', function(req, res, next) {
+
+    const { emailAddress, password } = req.body;
+
+    // check inside the database if the email and password match
+    //also if it's in the database
+
+    let user = findUserByEmail(emailAddress);
+
+    // remember to check validation
+    //let validatePassword = password.trim();
+
+    if (User.findIfEmailExists(emailAddress) && user.checkIfEqualsToPassword(password)) {
+        // Show to the chatroom page
+        res.render('chatroom');
+    }
+    else {
+        // stay on the same page and send the msg
+        res.render('login', {msg: 'Invalid email or password'});
+    }
 });
 
-
+router.get('/chatroom', function(req, res, next) {
+    res.redirect("/");
+});
 
 module.exports = router;
