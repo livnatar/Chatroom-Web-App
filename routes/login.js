@@ -16,7 +16,7 @@ router.post('/', function (req, res, next) {
     const { emailAddress, password } = req.body;
 
     // check inside the database if the email and password match
-    if (true) {
+    if (emailAddress) {
 
         // Redirect to the chatroom page
         res.redirect('/chatroom'); //add this path in apps
@@ -34,6 +34,10 @@ router.get('/login-success', function(req, res, next) {
     res.render('login', { msg: 'Registration completed successfully! You may now log in' });
 });
 
+
+router.get('/chatroom', function(req, res, next) {
+    res.render('chatroom');
+});
 
 
 module.exports = router;
