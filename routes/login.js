@@ -7,7 +7,7 @@ const {findUserByEmail} = require("../models/user");
 
 /* GET login page */
 router.get('/', function(req, res, next) {
-    res.render('login', {msg: ''});
+    res.render('login', {msg: '', pageTitle:'Login'});
 });
 
 
@@ -30,14 +30,14 @@ router.post('/', function (req, res, next) {
     }
     else {
         // stay on the same page and send the msg
-        res.render('login', {msg: 'Invalid email or password'});
+        res.render('login', {msg: 'Invalid email or password',pageTitle:'Login'});
     }
 });
 
 
 
 router.get('/login-success', function(req, res, next) {
-    res.render('login', { msg: 'Registration completed successfully! You may now log in' });
+    res.render('login', { msg: 'Registration completed successfully! You may now log in', pageTitle:'Login'});
 });
 
 
@@ -55,16 +55,17 @@ router.post('/chatroom', function(req, res, next) {
 
     if (User.findIfEmailExists(emailAddress) && user.checkIfEqualsToPassword(password)) {
         // Show to the chatroom page
-        res.render('chatroom');
+        res.redirect('/chatroom'); // changes here to redirect
     }
     else {
         // stay on the same page and send the msg
-        res.render('login', {msg: 'Invalid email or password'});
+        res.render('login', {msg: 'Invalid email or password', pageTitle:'Login'});
     }
 });
 
 router.get('/chatroom', function(req, res, next) {
-    res.redirect("/");
+    //res.redirect("/");
+    res.render('chatroom');
 });
 
 module.exports = router;

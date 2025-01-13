@@ -7,33 +7,35 @@ const {User, findIfEmailExists, findUserByEmail, printList} = require("../models
 
 /* GET register page */
 router.get('/', function(req, res, next) {
-    res.render('register', {msg: ''});
+    res.render('register', {msg: '', pageTitle:'Register'});
 });
 
 
 // Handle POST request when the user submits the registration form
-router.post('/', function (req, res, next) {
+router.post('/create-password', function (req, res, next) {
+
     const { emailAddress, firstName, lastName } = req.body;
 
-    // add validation that relates to the funcs in models/validation.js
-
     if (findIfEmailExists(emailAddress)){
-        res.render('register', {msg: 'Email already registered, try again'});
+        res.render('register', {msg: 'Email already registered, try again', pageTitle:'Register'});
     }
-    else {
-        // Combine user data into a single object
-        // const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
+    // else {
+    //     // Combine user data into a single object
+    //     // const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
+    //
+    //     // Set the user data as a cookie (expires in 30 seconds)
+    //     // res.cookie('userInfo', userData, { maxAge: 30000 });
+    //
+    //     // add user to the list of users
+    //     // const user = new User(emailAddress);
+    //     // user.addUser();
+    //
+    //     // Redirect to the password creation page
+    //     res.redirect('/register/create-password');
+    // }
 
-        // Set the user data as a cookie (expires in 30 seconds)
-        // res.cookie('userInfo', userData, { maxAge: 30000 });
+    res.redirect('/register/create-password');
 
-        // add user to the list of users
-        const user = new User(emailAddress);
-        user.addUser();
-
-        // Redirect to the password creation page
-        res.redirect('/register/create-password');
-    }
 });
 
 
@@ -44,42 +46,34 @@ router.get('/create-password', function (req, res, next) {
     const userInfo = req.cookies.userInfo;
     if (!userInfo) {
 
-        // add deletion from the userList
         // Redirect back to the register page if the cookie is missing or expired
         res.redirect('/register');
     }
     else {
         // Pass user data to the create-password view (to show email or other details)
-        res.render('createPassword', {msg: '', userInfo: JSON.parse(userInfo)}); //for the validation later on
+        res.render('createPassword', {msg: '', pageTitle:'Create Password'});
     }
 });
 
 // Handle POST request for password creation
-router.post('/create-password', function (req, res, next) {
+router.post('/account-created', function (req, res, next) {
 
     const { password } = req.body;
     const userInfo = req.cookies.userInfo;
 
     if (!userInfo) {
         // If no user data is available (cookie expired or not found), redirect back to the register page
+        // maybe add a message that too much time passed until pressed submit and the cookie deleted
         res.redirect('/register');
     }
     else {
-        // remember to check validation of password using models/validation.js
 
-        // Get the user data from the cookie
-        const { email } = JSON.parse(userInfo);
-
-        // Find the user and add the password
-        let user = findUserByEmail(email);
-        user.addPassword(password);
-
-        console.log('Password received:', password);
+        const user = new User(userInfo.email, password, userInfo.firstName, userInfo.lastName);
+        user.addUser();
+        // remember to add try and catch when moving to controller
 
         // Clear the cookie after the user sets the password
         res.clearCookie('userInfo');
-
-        printList();
 
         // Redirect to a success or login page
         res.redirect('/login-success');

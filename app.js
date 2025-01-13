@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const errorController = require('./controllers/error');
+
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
@@ -37,5 +39,10 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// plug in the error controller
+app.use(errorController.get404);
+let port = process.env.PORT || 3000;
+app.listen(port);
 
 module.exports = app;

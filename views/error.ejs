@@ -1,3 +1,22 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<%- include('includes/head.ejs') %>
+
+<!-- Header Section -->
+<div class="row justify-content-center">
+    <div class="col-12 text-center">
+        <h1 class="fs-1">Error</h1>
+        <h6 class="fs-5 text-muted">Something went wrong</h6>
+        <p class="text-danger"><%= errorMsg %></p>
+    </div>
+</div>
+
+<!-- Retry Section -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm p-4 text-center">
+            <p class="mb-3">Please try again or go back to the home page.</p>
+            <a href="/" class="btn btn-info w-100 text-white">Go to Home</a>
+        </div>
+    </div>
+</div>
+
+<%- include('includes/end.ejs') %>
