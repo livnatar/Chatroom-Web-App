@@ -75,8 +75,8 @@ router.post('/account-created', function (req, res, next) {
         // Clear the cookie after the user sets the password
         res.clearCookie('userInfo');
 
-        // Redirect to a success or login page
-        res.redirect('/login-success');
+        // Redirect to login page
+        res.render('login', { msg: 'Registration completed successfully! You may now log in', pageTitle:'Login'});
     }
 
 });

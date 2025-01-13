@@ -40,9 +40,9 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-// plug in the error controller
-app.use(errorController.get404);
-let port = process.env.PORT || 3000;
-app.listen(port);
+// // plug in the error controller
+// app.use(errorController.get404);
+// let port = process.env.PORT || 3000;
+// app.listen(port);
 
 module.exports = app;

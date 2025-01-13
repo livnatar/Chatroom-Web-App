@@ -35,10 +35,10 @@ router.post('/', function (req, res, next) {
 });
 
 
-
-router.get('/login-success', function(req, res, next) {
-    res.render('login', { msg: 'Registration completed successfully! You may now log in', pageTitle:'Login'});
-});
+//
+// router.get('/login-success', function(req, res, next) {
+//     res.render('login', { msg: 'Registration completed successfully! You may now log in', pageTitle:'Login'});
+// });
 
 
 router.post('/chatroom', function(req, res, next) {
