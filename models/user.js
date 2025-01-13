@@ -1,4 +1,7 @@
 
+
+const {validation} = require("../models/validation")
+
 let userList = [];
 
 function findIfEmailExists(emailAddress) {
@@ -14,17 +17,31 @@ function printList() {
 }
 
 class User {
-    constructor(email) {
+    constructor(email,password,firstName,lastName) {
         this.email = email;
-        this.password = null;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     addUser() {
-        userList.push(this);
-    }
 
-    addPassword(password) {
-        this.password = password;
+        //check if the email exist in the userList
+        if(findIfEmailExists(this.email)) {
+            throw new Error("Email already exists, try again");
+        }
+
+        //check validation for each field and throw error
+        else if(validation.nameValidation(this.firstName) &&
+                validation.nameValidation(this.lastName)  &&
+                validation.validatePassword(this.password) &&
+                validation.emailValidation(this.email)){
+
+            userList.push(this);
+        }
+        else{
+            throw new Error("Invalid input")
+        }
     }
 
     checkIfEqualsToPassword(password) {
