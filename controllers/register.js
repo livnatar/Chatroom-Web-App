@@ -2,6 +2,10 @@
 const {User, findIfEmailExists} = require("../models/user");
 
 
+exports.getRegister = (req, res, next) => {
+    res.render('register', {msg: '', pageTitle:'Register'});
+};
+
 exports.accountCreated = (req, res, next) => {
     let newId = generateId();
     try {
@@ -15,7 +19,7 @@ exports.accountCreated = (req, res, next) => {
         }
         else {
 
-            const user = new User(userInfo.email, password, userInfo.firstName, userInfo.lastName, newId);
+            const user = new User(userInfo.email, password.trim(), userInfo.firstName, userInfo.lastName, newId);
             user.addUser();
             // remember to add try and catch when moving to controller
 
@@ -27,6 +31,7 @@ exports.accountCreated = (req, res, next) => {
         }
     } catch (err) {
         // TO DO! we must handle the error here and generate a EJS page to display the error.
+        console.log(`Error: ${err}`)
     }
 
 };

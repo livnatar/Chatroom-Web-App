@@ -2,19 +2,19 @@
 
 module.exports = (function(){
 
+    const inputLengthValidation = function(input){
+        return input.length >= 3 && input.length <= 32;
+    };
+
     const nameValidation = function(name){
-        const nameRegex = /^[a-zA-Z]+$/;
-        const matches = name.match(nameRegex); // Returns an array if it matches, null otherwise
+        const regex = /^[a-zA-Z]+$/;
+        let matches = regex.test(name);
         return matches !== null && inputLengthValidation(name) ;
     };
 
     const emailValidation = function(email){
         const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         return regex.test(email) && inputLengthValidation(email);
-    };
-
-    const inputLengthValidation = function(input){
-        return input.length >= 3 && input.length <= 32;
     };
 
     const validatePassword = function(password) {

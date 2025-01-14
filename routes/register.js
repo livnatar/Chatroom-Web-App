@@ -8,9 +8,9 @@ const registerController = require('../controllers/register');
 
 
 /* GET register page */
-router.get('/', function(req, res, next) {
-    res.render('register', {msg: '', pageTitle:'Register'});
-});
+router.get('/', registerController.getRegister);  //  function(req, res, next) {
+   // res.render('register', {msg: '', pageTitle:'Register'});
+//});
 
 
 // Handle POST request when the user submits the registration form
