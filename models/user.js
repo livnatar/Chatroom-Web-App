@@ -17,11 +17,12 @@ function printList() {
 }
 
 class User {
-    constructor(email,password,firstName,lastName) {
+    constructor(email,password,firstName,lastName, id) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.id = id;
     }
 
     addUser() {
@@ -51,6 +52,11 @@ class User {
     static fetchAll() {
         return userList;
     }
+
+    static getLength() {
+        return userList.length;
+    }
+
 }
 
 module.exports = {User, findUserByEmail, printList, findIfEmailExists};
