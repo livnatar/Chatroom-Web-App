@@ -8,6 +8,7 @@ const errorController = require('./controllers/error');
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
+const {get404} = require("./controllers/error");
 
 var app = express();
 
@@ -24,25 +25,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', loginRouter);
 app.use('/register', registerRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// Catch unknown routes (404 errors) and forward to the error controller
+app.use(errorController.get404);
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+// Error handler (for other errors)
+app.use((err, req, res, next) => {
+  // Set locals to send error details, only for development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // Render the error page
   res.status(err.status || 500);
   res.render('error');
 });
 
-// // plug in the error controller
-// app.use(errorController.get404);
-// let port = process.env.PORT || 3000;
-// app.listen(port);
 
 module.exports = app;

@@ -6,11 +6,15 @@ exports.getRegister = (req, res, next) => {
     res.render('register', {msg: '', pageTitle:'Register'});
 };
 
+exports.getAccountCreated = (req, res, next) => {
+    res.redirect('/');
+};
+
 exports.accountCreated = (req, res, next) => {
     let newId = generateId();
     try {
         const { password } = req.body;
-        const userInfo = req.cookies.userInfo;
+        const userInfo = JSON.parse(req.cookies.userInfo);
 
         if (!userInfo) {
             // If no user data is available (cookie expired or not found), redirect back to the register page
@@ -21,7 +25,6 @@ exports.accountCreated = (req, res, next) => {
 
             const user = new User(userInfo.email, password.trim(), userInfo.firstName, userInfo.lastName, newId);
             user.addUser();
-            // remember to add try and catch when moving to controller
 
             // Clear the cookie after the user sets the password
             res.clearCookie('userInfo');

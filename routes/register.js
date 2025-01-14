@@ -83,5 +83,6 @@ router.post('/account-created', registerController.accountCreated); //function (
 
 //});
 
+router.get('/account-created', registerController.getAccountCreated);
 
 module.exports = router;
