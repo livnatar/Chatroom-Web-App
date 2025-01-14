@@ -58,6 +58,7 @@ exports.postCreatePassword = (req, res, next) => {
 
     const { emailAddress, firstName, lastName } = req.body;
 
+    // can be removed once the controller catch will have the rendering
     if (findIfEmailExists(emailAddress)){
         res.render('register', {msg: 'Email already registered, try again', pageTitle:'Register'});
     }
