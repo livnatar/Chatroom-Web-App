@@ -29,7 +29,7 @@ class User {
 
         //check if the email exist in the userList
         if(findIfEmailExists(this.email)) {
-            //throw new Error("Email already exists, try again");
+            //throw new Error("Email already exists, please choose another one”)");
         }
 
         //check validation for each field and throw error
@@ -59,4 +59,4 @@ class User {
 
 }
 
-module.exports = {User, findUserByEmail, printList, findIfEmailExists};
+module.exports = {User, findUserByEmail, findIfEmailExists};

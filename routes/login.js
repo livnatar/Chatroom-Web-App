@@ -1,14 +1,17 @@
 
 var express = require('express');
 var router = express.Router();
-const User = require('../models/user');
-const {findUserByEmail} = require("../models/user");
+
+const loginController = require('../controllers/login');
+
+// const User = require('../models/user');
+// const {findUserByEmail} = require("../models/user");
 
 
 /* GET login page */
-router.get('/', function(req, res, next) {
-    res.render('login', {msg: '', pageTitle:'Login'});
-});
+router.get('/', loginController.getLogin);//function(req, res, next) {
+    // res.render('login', {msg: '', pageTitle:'Login'});
+//});
 
 
 // // Handle POST request when the user submits the login form
@@ -41,32 +44,32 @@ router.get('/', function(req, res, next) {
 // });
 
 
-router.get('/chatroom', function(req, res, next) {
+router.get('/chatroom', loginController.getChatroom);//function(req, res, next) {
 
-    res.redirect('/');
-});
+//     res.redirect('/');
+// });
 
-router.post('/chatroom', function(req, res, next) {
+router.post('/chatroom', loginController.postChatroom);//req, res, next) {
 
-    const { emailAddress, password } = req.body;
-
-    if (User.findIfEmailExists(emailAddress)) {
-
-        let user = findUserByEmail(emailAddress);
-
-        if (user.checkIfEqualsToPassword(password)) {
-            // Show to the chatroom page
-            res.render('chatroom'); // changes here to redirect
-        }
-        else {
-            // stay on the same page and send the msg
-            res.render('login', {msg: 'Invalid email or password', pageTitle:'Login'});
-        }
-    }
-    else {
-        res.redirect('/');
-    }
-});
+    // const { emailAddress, password } = req.body;
+    //
+    // if (User.findIfEmailExists(emailAddress)) {
+    //
+    //     let user = findUserByEmail(emailAddress);
+    //
+    //     if (user.checkIfEqualsToPassword(password)) {
+    //         // Show to the chatroom page
+    //         res.render('chatroom'); // changes here to redirect
+    //     }
+    //     else {
+    //         // stay on the same page and send the msg
+    //         res.render('login', {msg: 'Invalid email or password', pageTitle:'Login'});
+    //     }
+    // }
+    // else {
+    //     res.redirect('/');
+    // }
+//});
 
 
 // router.post('/chatroom', function(req, res, next) {
