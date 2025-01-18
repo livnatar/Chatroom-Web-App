@@ -4,9 +4,8 @@
 <!-- Header Section -->
 <div class="row justify-content-center">
     <div class="col-12 text-center">
-        <h1 class="fs-1">Sign in</h1>
-        <h6 class="fs-5 text-muted">Please sign in</h6>
-        <p class="text-danger"><%= msg%></p>
+        <h1 class="fs-1">Please Sign in</h1>
+        <p class="<%= isSuccess ? 'text-success' : 'text-danger' %>"><%= msg %></p>
     </div>
 </div>
 
@@ -33,7 +32,8 @@
 <div class="row justify-content-center mt-3">
     <div class="col-12 text-center">
         <p class="mb-1">Already registered?
-            <a href="#" class="text-decoration-none" onclick="window.location='/register';">Register</a>
+            <!--<a href="#" class="text-decoration-none" onclick="window.location='/register';">Register</a>-->
+            <a href="/register" class="text-decoration-none text-primary">Register</a>
         </p>
     </div>
 </div>
@@ -43,7 +43,3 @@
 
 <%- include('includes/end.ejs') %>
 
-<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>-->
-<!--<script type="module" src="/javascripts/validationModule.js"></script>-->
-<!--</body>-->
-<!--</html>-->

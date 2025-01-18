@@ -10,11 +10,6 @@ const setCookie = function(cname, cvalue, seconds) {
     const now = new Date(); // Get the current time
     const expires = new Date(now.getTime() + seconds * 1000); // Add seconds to the current time
 
-    // Log both the current time and expiration time
-    console.log("Current time:", now.toLocaleString());
-    console.log("Expires in 30 seconds:", expires.toLocaleString()); // Local time
-    console.log("Expires in UTC:", expires.toUTCString()); // UTC time
-
     // Set the cookie with the expiration time
     document.cookie = `${cname}=${cvalue}; expires=${expires.toUTCString()}; path=/`;
 };

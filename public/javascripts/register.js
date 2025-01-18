@@ -3,22 +3,11 @@
 import { validateForm } from './validationModule.js';
 import { setCookie, getCookie } from './cookieUtils.js';
 
+const REGISTER = 30;
 
 (function() {
 
     document.addEventListener('DOMContentLoaded', function () {
-
-        // const setCookie = function(cname, cvalue, seconds){
-        //     const d = new Date(Date.now() + seconds * 1000); // Convert seconds to milliseconds
-        //     document.cookie = `${cname}=${cvalue}; expires=${d.toUTCString()}; path=/`;
-        // };
-        //
-        // const  getCookie = function getCookie(name) {
-        //     const value = `; ${document.cookie}`;
-        //     const parts = value.split(`; ${name}=`);
-        //     if (parts.length === 2) return parts.pop().split(';').shift();
-        //     else return null;
-        // };
 
         const registerForm = document.getElementById("registerForm");
         // Register form submission
@@ -36,7 +25,7 @@ import { setCookie, getCookie } from './cookieUtils.js';
                 const userData = JSON.stringify({ email, firstName, lastName });
 
                 // Save the combined data in a single cookie
-                setCookie('userInfo', userData, 30); // Cookie lasts 30 seconds
+                setCookie('userInfo', userData, REGISTER); // Cookie lasts 30 seconds
 
                 registerForm.submit(); // Submit the form if validation is successful
             }
@@ -57,8 +46,6 @@ import { setCookie, getCookie } from './cookieUtils.js';
         }
 
         insertDataFromCookie();
-
-
     });
 
 

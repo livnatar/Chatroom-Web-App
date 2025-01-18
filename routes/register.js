@@ -14,7 +14,7 @@ router.post('/create-password', registerController.postCreatePassword);
 router.get('/create-password',registerController.getCreatePassword );
 
 // Handle POST request for password creation
-router.post('/account-created', registerController.accountCreated);
+router.post('/account-created', registerController.postAccountCreated);
 
 router.get('/account-created', registerController.getAccountCreated);
 

@@ -3,14 +3,18 @@ const {User, findIfEmailExists} = require("../models/user");
 
 
 exports.getRegister = (req, res, next) => {
-    res.render('register', {msg: '', pageTitle:'Register'});
+
+    const messages = res.locals.messages || req.flash('msg');
+    const msg = messages.length > 0 ? messages[0] : '';
+    res.render('register', { msg, pageTitle: 'Register' });
 };
 
 exports.getAccountCreated = (req, res, next) => {
     res.redirect('/');
 };
 
-exports.accountCreated = (req, res, next) => {
+exports.postAccountCreated = (req, res, next) => {
+
     let newId = generateId();
     try {
         const { password } = req.body;
@@ -18,7 +22,7 @@ exports.accountCreated = (req, res, next) => {
 
         if (!userInfo) {
             // If no user data is available (cookie expired or not found), redirect back to the register page
-            // maybe add a message that too much time passed until pressed submit and the cookie deleted
+            req.flash('msg', 'Oops! It seems like you have been away for a bit too long. Please start over to continue your registration.');
             res.redirect('/register');
         }
         else {
@@ -30,11 +34,13 @@ exports.accountCreated = (req, res, next) => {
             res.clearCookie('userInfo');
 
             // Redirect to login page
-            res.render('login', { msg: 'Registration completed successfully! You may now log in', pageTitle:'Login'});
+            req.flash('msg', 'Registration completed successfully! You may now log in');
+            res.redirect('/');
         }
-    } catch (err) {
-        // TO DO! we must handle the error here and generate a EJS page to display the error.
-        console.log(`Error: ${err}`)
+    }
+    catch (err) {
+        req.flash('msg', err);
+        res.redirect('/register');
     }
 
 };
@@ -60,25 +66,11 @@ exports.postCreatePassword = (req, res, next) => {
 
     // can be removed once the controller catch will have the rendering
     if (findIfEmailExists(emailAddress)){
-        res.render('register', {msg: 'Email already registered, try again', pageTitle:'Register'});
+        req.flash('msg', 'Email already exists, please try a different email');
+        res.redirect('/register');
     }
-    // else {
-    //     // Combine user data into a single object
-    //     // const userData = JSON.stringify({ email: emailAddress, firstName, lastName });
-    //
-    //     // Set the user data as a cookie (expires in 30 seconds)
-    //     // res.cookie('userInfo', userData, { maxAge: 30000 });
-    //
-    //     // add user to the list of users
-    //     // const user = new User(emailAddress);
-    //     // user.addUser();
-    //
-    //     // Redirect to the password creation page
-    //     res.redirect('/register/create-password');
-    // }
 
     res.redirect('/register/create-password');
-
 };
 
 

@@ -12,10 +12,6 @@ function findUserByEmail(emailAddress) {
     return userList.find(user => user.email === emailAddress);
 }
 
-function printList() {
-    console.log(`${userList}`);
-}
-
 class User {
     constructor(email,password,firstName,lastName, id) {
         this.email = email;
@@ -27,9 +23,10 @@ class User {
 
     addUser() {
 
-        //check if the email exist in the userList
+        // check if the email exist in the userList
+        // we get here if throughout the registration process the email has been already taken
         if(findIfEmailExists(this.email)) {
-            //throw new Error("Email already exists, please choose another one”)");
+            throw new Error("Email already exists, please try a different email");
         }
 
         //check validation for each field and throw error
@@ -40,8 +37,8 @@ class User {
 
             userList.push(this);
         }
-        else{
-           // throw new Error("Invalid input")
+        else {
+           throw new Error("Invalid input")
         }
     }
 
