@@ -18,15 +18,15 @@ exports.postAccountCreated = (req, res, next) => {
     let newId = generateId();
     try {
         const { password } = req.body;
-        const userInfo = JSON.parse(req.cookies.userInfo);
 
-        if (!userInfo) {
+        if (!req.cookies.userInfo) {
             // If no user data is available (cookie expired or not found), redirect back to the register page
             req.flash('msg', 'Oops! It seems like you have been away for a bit too long. Please start over to continue your registration.');
             res.redirect('/register');
         }
         else {
 
+            const userInfo = JSON.parse(req.cookies.userInfo);
             const user = new User(userInfo.email, password.trim(), userInfo.firstName, userInfo.lastName, newId);
             user.addUser();
 

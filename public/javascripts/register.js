@@ -3,7 +3,7 @@
 import { validateForm } from './validationModule.js';
 import { setCookie, getCookie } from './cookieUtils.js';
 
-const REGISTER = 30;
+const REGISTER = 60;
 
 (function() {
 
