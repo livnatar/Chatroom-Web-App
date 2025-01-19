@@ -68,7 +68,7 @@ exports.getChatroom = (req, res, next) => {
         let user = findUserByEmail(email);
 
         if (user.checkIfEqualsToPassword(password)) {
-            res.render('chatroom');
+            res.render('chatroom', {pageTitle: 'chatroom'});
         } else {
             req.flash('msg', 'Email and password do not match, try again');
             res.redirect('/');
