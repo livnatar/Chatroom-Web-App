@@ -6,6 +6,7 @@ var logger = require('morgan');
 const session = require('express-session');
 const flash = require('connect-flash');
 const errorController = require('./controllers/error');
+const sequelize = require('./models/index');
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
@@ -26,14 +27,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session and Flash middleware
-app.use(
-    session({
-      secret: 'yourSecretKey', // Replace with a strong secret key
-      resave: false,           // Prevents unnecessary session saving
-      saveUninitialized: true, // Forces uninitialized sessions to be saved
-      cookie: { secure: false } // Use `secure: true` only with HTTPS
-    })
-);
+// Enable sessions
+app.use(session({
+    secret: 'somesecretkey',
+    //store: myStore, // default is memory store
+    resave: false, // don't save session if unmodified
+    saveUninitialized: false, // don't create session until something stored
+    cookie: { maxAge: 10 * 60 * 1000 } // milliseconds
+}));
+
+// Sync the session store
+// myStore.sync();
 
 app.use(flash());
 
@@ -43,8 +47,22 @@ app.use((req, res, next) => {
   next();
 });
 
+(async () => {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+        await sequelize.sync();
+        console.log('All models were synchronized successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+})();
+
+
 // Routes
+// middleware here that checks if there's a session and if there is, it doesn't show the login page
 app.use('/', loginRouter);
+// middleware here that checks if the user is logged in- if logged in not to allow an option to log in
 app.use('/register', registerRouter);
 
 // Catch unknown routes (404 errors)
