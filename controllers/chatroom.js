@@ -1,9 +1,9 @@
 
 const createError = require('http-errors');
 const {User} = require("../models/user");
+const {Message} = require("../models/message");
 const bcrypt = require("bcrypt");
 const Sequelize = require("sequelize");
-const {Message} = require("../models/message");
 
 
 exports.postChatroom = async (req, res, next) => {

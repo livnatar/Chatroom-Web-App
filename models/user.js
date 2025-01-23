@@ -2,7 +2,7 @@
 const sequelize = require('./index');
 const bcrypt = require('bcrypt');
 const { DataTypes } = require('sequelize');
-const Message = require('./message');
+const {Message } = require('./message');
 
 const User = sequelize.define('User', {
     firstName: {
