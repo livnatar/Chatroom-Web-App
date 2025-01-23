@@ -2,7 +2,7 @@
 const Sequelize = require('sequelize');
 //const {User, findIfEmailExists} = require("../models/user");
 const { User } = require("../models/user");
-
+const createError = require('http-errors');
 
 exports.getRegister = (req, res, next) => {
 
@@ -27,14 +27,14 @@ exports.postAccountCreated = async (req, res, next) => {
         }
         else {
             const userInfo = JSON.parse(req.cookies.userInfo);
-            const newUser = await User.create({firstName:userInfo.firstName, lastName:userInfo.lastName, email:userInfo.email, password:password.trim()});
+            const newUser = await User.create({firstName:userInfo.firstName, lastName:userInfo.lastName, email:userInfo.email.toLowerCase(), password:password.trim()});
 
             // Clear the cookie after the user sets the password
             res.clearCookie('userInfo');
 
             // Redirect to login page
             req.flash('msg', 'Registration completed successfully! You may now log in');
-            res.redirect('/');
+            res.redirect('/login');
         }
     }
     catch (err) {
@@ -55,8 +55,8 @@ exports.postAccountCreated = async (req, res, next) => {
         }
         // Handle unexpected errors
         else {
-            req.flash('msg', `Unexpected error: ${err.message}`);
-            res.redirect('/register');
+            // Pass the error to the central error-handling middleware
+            return next(createError(500, `Unexpected error: ${err.message}`));
         }
     }
 };
@@ -80,7 +80,7 @@ exports.postCreatePassword = async (req, res, next) => {
 
     const { emailAddress, firstName, lastName } = req.body;
     try {
-        const findUser = await User.findOne({where: {email: emailAddress}})
+        const findUser = await User.findOne({where: {email: emailAddress.toLowerCase()}})
         if (findUser) {
             req.flash('msg', 'Email already exists, please try a different email');
             res.redirect('/register');
@@ -95,8 +95,8 @@ exports.postCreatePassword = async (req, res, next) => {
         }
         // Handle unexpected errors
         else {
-            req.flash('msg', `Unexpected error: ${err.message}`);
-            res.redirect('/register');
+            // Pass the error to the central error-handling middleware
+            return next(createError(500, `Unexpected error: ${err.message}`));
         }
     }
 };

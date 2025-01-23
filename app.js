@@ -59,12 +59,22 @@ app.use((req, res, next) => {
     }
 })();
 
+// Middleware to check if the user is not logged in
+const isNotLoggedIn = (req, res, next) => {
+    if (req.session.userId) {
+        // If user is logged in, redirect to chatroom
+        return res.redirect('/chatroom');
+    }
+    next(); // If not logged in, proceed to the next middleware/route
+};
+
 
 // Routes
-// middleware here that checks if there's a session and if there is, it doesn't show the login page
-app.use('/', loginRouter);
-// middleware here that checks if the user is logged in- if logged in not to allow an option to log in
-app.use('/register', registerRouter);
+app.use('/', chatroomRouter);
+
+// Routes with middleware applied
+app.use('/', isNotLoggedIn, loginRouter);
+app.use('/register', isNotLoggedIn, registerRouter);
 
 // Catch unknown routes (404 errors)
 app.use(errorController.get404);
