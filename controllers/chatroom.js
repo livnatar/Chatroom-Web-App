@@ -72,6 +72,7 @@ exports.sendMessage = async (req, res, next) => {
 
     try {
         const { message } = req.body;
+        console.log(`try to sent the message - ${message}`);
 
         if (!req.session.userId) {
             // If no user data is available (cookie expired or not found), redirect back to the register page
@@ -81,6 +82,7 @@ exports.sendMessage = async (req, res, next) => {
 
         else {
             const newMsg = await Message.create({user_id:req.session.userId, input:message});
+            res.redirect('/chatroom');
         }
     }
     catch (err) {

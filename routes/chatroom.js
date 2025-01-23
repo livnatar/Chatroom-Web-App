@@ -10,7 +10,7 @@ router.get('/chatroom', chatroomController.getChatroom);
 
 router.post('/chatroom', chatroomController.postChatroom);
 
-router.post('/sendMessage"', chatroomController.sendMessage);
+router.post('/sendMessage', chatroomController.sendMessage);
 
 router.get('/logout', chatroomController.logout);
 
