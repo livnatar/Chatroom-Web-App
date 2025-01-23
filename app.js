@@ -10,6 +10,7 @@ const sequelize = require('./models/index');
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
+const chatroomRouter = require('./routes/chatroom');
 
 const {get404} = require("./controllers/error");
 
