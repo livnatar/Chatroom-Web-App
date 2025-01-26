@@ -1,6 +1,5 @@
 
 import { validateForm } from './validationModule.js';
-import { getCookie } from './cookieUtils.js';
 
 (function() {
     document.addEventListener('DOMContentLoaded', function () {
