@@ -73,7 +73,37 @@ router.post('/find-and-delete-msg', async (req, res) => {
             res.json({ deleted: false });
         }
     } catch (error) {
-        console.error('Error checking session:', error);
+        console.error('Error deleting message:', error);
+        return res.status(500).json({ authenticated: false });
+    }
+});
+
+router.post('/save-msg', async (req, res) => {
+    try{
+        const messageId = req.body.msgId;
+        const newMsg = req.body.newInput;
+
+        const message = await Message.findOne({
+            where: {id: messageId},
+            attributes:['user_id', 'input']
+        });
+
+        // Check if message exists and if user_id matches the session userId
+        if (message && req.session.userId && message.user_id === req.session.userId) {
+
+            // Delete the message if user_id matches
+            await Message.update(
+                { input: newMsg },
+                { where: { id: messageId } }
+            );
+
+            res.json({ updated: true, newInput: newMsg });
+        }
+        else {
+            res.json({ updated: false });
+        }
+    } catch (error) {
+        console.error('Error updating message:', error);
         return res.status(500).json({ authenticated: false });
     }
 });

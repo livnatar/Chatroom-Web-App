@@ -1,7 +1,7 @@
 
-const {chatroomUIModel} = require('./chatroomUI');
-const {Messages} = require('../models/message');
-const {User} = require("../../models/user");
+import { ChatroomUIModule } from './chatroomUI.js';
+import { Messages } from '../../models/message';
+import {User} from '../../models/user';
 
 (function() {
 
@@ -15,14 +15,11 @@ const {User} = require("../../models/user");
 
     });
 
-})();
-
-
 const Manager = (function (){
 
     const fetchAndDisplayMessages = async function () {
         const messages = await ChatroomAPI.fetchMessages();
-        chatroomUIModel.displayMessages(messages);
+        ChatroomUIModule.displayMessages(messages);
     }
 
     /***
@@ -37,7 +34,7 @@ const Manager = (function (){
             });
 
             // Validate the response status
-            const validateResponse = await chatroomUIModel.status(response);
+            const validateResponse = await ChatroomAPI.status(response);
 
             // Parse the response and check if the session is authenticated
             const session = await response.json();
@@ -53,8 +50,7 @@ const Manager = (function (){
     const handleEdit = async function (msgId){
         try {
             if (await checkSession(msgId)) {
-                // means the session is valid
-                chatroomUIModel.editMsg(msgId);
+                ChatroomUIModule.editMsg(msgId);
             }
             else {
                 // no session, redirect to login
@@ -66,14 +62,31 @@ const Manager = (function (){
         }
     }
 
-    const handleSave = async function (msgId){
+    const handleSave = async function (msgId, newInput){
         try {
             if (await checkSession(msgId)) {
                 // means the session is valid
-                chatroomUIModel.saveMsg(msgId);
+
+                // fetch that finds the message and changes it's content
+                const response = await fetch('/save-msg', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({msgId, newInput})
+                });
+
+                const validateResponse = await ChatroomAPI.status(response);
+                const message = await response.json();
+
+                if (message.updated) {
+                    // in order to show the updated message
+                    ChatroomUIModule.saveMsg(msgId, newInput);
+                }
+                else {
+                    console.log("Failed to update the message");
+                }
             }
             else {
-                // no session, redirect to login
+                // If no session, redirect to login
                 window.location.href = '/login';
             }
         }
@@ -82,11 +95,10 @@ const Manager = (function (){
         }
     }
 
-    const handleCancel = async function (msgId){
+    const handleCancel = async function (msgId, editedInput, originalInput){
         try {
             if (await checkSession(msgId)) {
-                // means the session is valid
-                chatroomUIModel.cancelMsg(msgId);
+                ChatroomUIModule.cancelMsg(msgId, editedInput, originalInput);
             }
             else {
                 // no session, redirect to login
@@ -108,7 +120,7 @@ const Manager = (function (){
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({msgId})
                 });
-                const validateResponse = await chatroomUIModel.status(response);
+                const validateResponse = await ChatroomAPI.status(response);
                 const message = await response.json();
 
                 if (message.deleted) {
@@ -137,7 +149,6 @@ const Manager = (function (){
     }
 
 })
-
 
 const ChatroomAPI = (function() {
 
@@ -170,3 +181,6 @@ const ChatroomAPI = (function() {
     }
 
 })
+
+
+})();

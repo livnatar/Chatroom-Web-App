@@ -1,10 +1,10 @@
 
 
 
-module.exports = function ChatroomUIModule() {
+export const ChatroomUIModule = {
 
     // Function to display messages in the chat area
-    const displayMessages = function(messages) {
+    displayMessages : function(messages) {
 
         const chatMessagesDiv = document.getElementById('chatMessages');
 
@@ -48,9 +48,9 @@ module.exports = function ChatroomUIModule() {
                 deleteButton.addEventListener('click', () => Manager.handleDelete(msg.id));
             }
         });
-    }
+    },
 
-    const editMsg = function (msgId) {
+    editMsg : function (msgId) {
 
         // Find the message card using the msgId
         const messageElement = document.querySelector(`[data-message-id="${msgId}"]`).closest('.card-body');
@@ -94,9 +94,9 @@ module.exports = function ChatroomUIModule() {
         // Remove the edit button listener and add a save listener
         editButton.removeEventListener('click', Manager.handleEdit);
         editButton.addEventListener('click', () => Manager.handleSave(msgId, editInput));
-    };
+    },
 
-    const cancelMsg = function (msgId, editInput, originalMessageText) {
+    cancelMsg : function (msgId, editInput, originalMessageText) {
 
         // Restore the original message text
         const messageElement = editInput.closest('.card-body');
@@ -119,9 +119,9 @@ module.exports = function ChatroomUIModule() {
         deleteButton.classList.add('btn-danger');
         deleteButton.removeEventListener('click', handleCancel);
         deleteButton.addEventListener('click', () => handleDelete(msgId));
-    };
+    },
 
-    const saveMsg = function (msgId, editInput) {
+    saveMsg : function (msgId, editInput) {
 
         // Ensure the input field is required
         editInput.required = true;
@@ -161,19 +161,19 @@ module.exports = function ChatroomUIModule() {
 
         // Log the update to the console
         console.log(`Message with ID ${msgId} updated to: "${newMessageText}"`);
-    };
+    },
 
-    const displaySearchMessages = function(messages) {
+    displaySearchMessages : function(messages) {
 
-    };
-
-
-    // Export the displayMessages function
-    return {
-        displayMessages,
-        editMsg,
-        cancelMsg,
-        saveMsg,
-        displaySearchMessages
-    };
+    }
+    //
+    //
+    // // Export the displayMessages function
+    // return {
+    //     displayMessages,
+    //     editMsg,
+    //     cancelMsg,
+    //     saveMsg,
+    //     displaySearchMessages
+    // };
 };
