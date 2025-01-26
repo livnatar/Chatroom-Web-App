@@ -103,3 +103,14 @@ exports.sendMessage = async (req, res, next) => {
         }
     }
 }
+
+exports.getSearchPage = (req, res, next) => {
+
+    // Check if the user ID is stored in the session
+    if (!req.session.userId) {
+        req.flash('msg', 'Please log in to access the chatroom');
+        return res.redirect('/login');
+    }
+
+    res.render('searchPage');
+};
