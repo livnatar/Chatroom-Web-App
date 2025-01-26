@@ -114,3 +114,38 @@ exports.getSearchPage = (req, res, next) => {
 
     res.render('searchPage');
 };
+
+exports.postFindMessages= async(req,res,next) => {
+
+    try {
+        // Check if the user ID is stored in the session
+        if (!req.session.userId) {
+            req.flash('msg', 'Please log in to access the chatroom');
+            return res.redirect('/login');
+        }
+
+        const query = req.body.query || '';  // Get the search query from the form (POST data)
+
+        // Use Sequelize to search for messages that include the query (case-insensitive using LIKE in SQLite)
+        const filteredMessages = await Message.findAll({
+            where: {
+                message: {
+                    [Sequelize.Op.like]: `%${query}%`,  // Case-insensitive search using LIKE for SQLite
+                },
+            },
+        });
+
+        // Render the results to the 'search' page with filtered messages
+        res.render('searchPage', {
+            messages: filteredMessages,  // Pass the filtered messages to the EJS template
+        });
+
+    } catch (err) {
+        // Pass the error to the central error-handling middleware
+        return next(createError(500, `Unexpected error: ${err.message}`));
+    }
+};
+
+exports.getFindMessages = (req,res,next) => {
+    res.redirect('/');
+};

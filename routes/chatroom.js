@@ -16,4 +16,8 @@ router.post('/sendMessage', chatroomController.sendMessage);
 
 router.get('/logout', chatroomController.logout);
 
+router.post('/chatroom/findMessages', chatroomController.postFindMessages);
+
+router.get('/chatroom/findMessages',chatroomController.getFindMessages);
+
 module.exports = router;
