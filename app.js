@@ -11,6 +11,7 @@ const sequelize = require('./models/index');
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
 const chatroomRouter = require('./routes/chatroom');
+const apiRouter = require('./routes/chatroomApi');
 
 const {get404} = require("./controllers/error");
 
@@ -72,9 +73,13 @@ const isNotLoggedIn = (req, res, next) => {
 // Routes
 app.use('/', chatroomRouter);
 
+app.use('/', apiRouter);
+
 // Routes with middleware applied
 app.use('/', isNotLoggedIn, loginRouter);
 app.use('/register', isNotLoggedIn, registerRouter);
+
+
 
 // Catch unknown routes (404 errors)
 app.use(errorController.get404);
