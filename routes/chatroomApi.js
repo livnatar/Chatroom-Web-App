@@ -60,19 +60,26 @@ router.post('/existingMessages', async (req, res) => {
         const currentUserId = req.session.userId; // Logged-in user's ID
 
         const maxUpdatedAt = await Message.findOne({
-            attributes: ['updatedAt', 'destroyTime'],
-            order: [['updatedAt', 'DESC'], ['destroyTime', 'DESC']],
+            attributes: ['updatedAt'],
+            order: [['updatedAt', 'DESC']],
             limit: 1,
         });
 
-        if (!maxUpdatedAt) {
+        const maxDeletedAt = await Message.findOne({
+            attributes: ['deletedAt'],
+            order: [['deletedAt', 'DESC']],
+            limit: 1,
+        });
+
+        // database is empty - therefore null
+        if (!maxUpdatedAt || !maxDeletedAt) {
             // No messages exist
-            return res.json([]);
+            return res.json({messages:[]});
         }
 
         const maxTime = Math.max(
             new Date(maxUpdatedAt.updatedAt).getTime(),
-            new Date(maxUpdatedAt.destroyTime).getTime()
+            new Date(maxDeletedAt.deletedAt).getTime()
         );
 
         if (maxTime >= lastUpdate.getTime()) {
@@ -90,11 +97,11 @@ router.post('/existingMessages', async (req, res) => {
                 isOwnedByUser: message.user_id === currentUserId, // Check ownership
             }));
 
-            return res.json(filteredMessages);
+            return res.json({messages:filteredMessages});
         }
         else {
-            // No new messages
-            return res.json([]);
+            // No new messages - no need to fetch messages
+            return res.json({messages:[]});
         }
     }
     catch (error) {
@@ -108,27 +115,29 @@ router.post('/check-session', (res) => {
 });
 
 router.post('/find-and-delete-msg', async (req, res) => {
-    try{
+    try {
         const messageId = req.body.msgId;
-        const user = await Message.findOne({
-            where: {id: messageId},
-            attributes:['user_id']
+        // const user = await Message.findOne({
+        //     where: {id: messageId},
+        //     attributes:['user_id']
+        // });
+        //
+        // // Check if message exists and if user_id matches the session userId
+        // if (user && req.session.userId && user.user_id === req.session.userId) {
+
+        // Delete the message if user_id matches
+        await Message.destroy({
+            where: { id: messageId }
         });
 
-        // Check if message exists and if user_id matches the session userId
-        if (user && req.session.userId && user.user_id === req.session.userId) {
+        res.json({ deleted: true });
 
-            // Delete the message if user_id matches
-            await Message.destroy({
-                where: { id: messageId }
-            });
-
-            res.json({ deleted: true });
-        }
-        else {
-            res.json({ deleted: false });
-        }
-    } catch (error) {
+        //
+        // else {
+        //     res.json({ deleted: false });
+        // }
+    }
+    catch (error) {
         console.error('Error deleting message:', error);
         return res.status(500).json({ authenticated: false });
     }

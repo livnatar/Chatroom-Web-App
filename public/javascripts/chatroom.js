@@ -1,6 +1,8 @@
 
 //import { ChatroomUIModule } from './chatroomUI.js';
 
+const POLLING = 10000*100;
+
 (function() {
     let lastUpdate = null;
 
@@ -15,28 +17,36 @@
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', Manager.handleCancel); // Handles modal close
 
         // display messages every 10 seconds
-        setInterval(Manager.fetchAndDisplayMessages, 10000);
+        setInterval(Manager.fetchAndDisplayMessages, POLLING);
 
     });
 
 const Manager = (function (){
 
     const fetchAndDisplayMessages = async function () {
-
-        const messages = await ChatroomAPI.fetchMessages(lastUpdate);
+    try {
+        const response = await ChatroomAPI.fetchMessages(lastUpdate);
         lastUpdate = new Date();
 
-        if (Array.isArray(messages) && messages.length > 0) {
-            ChatroomUIModule.displayMessages(messages);
+        if (response && Array.isArray(response.messages)) {
+            if (response.messages.length > 0) {
+                ChatroomUIModule.displayMessages(response.messages);
+            }
+            else {
+                console.log('No messages to display');
+            }
+        }
+        else if (response.error) {
+            console.error('Error from server:', response.error);
         }
         else {
-            console.log('No messages to display');
+            console.log('Unexpected response format:', response);
         }
-
-        // if (messages !== undefined) {
-        //     ChatroomUIModule.displayMessages(messages);
-        // }
     }
+    catch (error) {
+        console.error('Error fetching messages:', error);
+    }
+}
 
     /***
      This function is responsible for checking if there's an existing session

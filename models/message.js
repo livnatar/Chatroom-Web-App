@@ -13,7 +13,6 @@ const Message = sequelize.define('Message',
 }, {
     sequelize,
     paranoid: true,
-    deletedAt: 'destroyTime'
 },
     {
     modelName: 'Message'
