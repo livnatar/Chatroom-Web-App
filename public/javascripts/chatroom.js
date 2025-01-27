@@ -26,9 +26,16 @@ const Manager = (function (){
         const messages = await ChatroomAPI.fetchMessages(lastUpdate);
         lastUpdate = new Date();
 
-        if (messages) {
+        if (Array.isArray(messages) && messages.length > 0) {
             ChatroomUIModule.displayMessages(messages);
         }
+        else {
+            console.log('No messages to display');
+        }
+
+        // if (messages !== undefined) {
+        //     ChatroomUIModule.displayMessages(messages);
+        // }
     }
 
     /***

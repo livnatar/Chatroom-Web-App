@@ -15,35 +15,38 @@ router.post('/existingMessages', async (req, res) => {
     try {
         const currentUserId = req.session.userId; // Logged-in user's ID
 
-        const maxUpdateAt = await Message.findOne({
+        const maxUpdatedAt = await Message.findOne({
             attributes: ['updatedAt', 'destroyTime'],
             order: [['updatedAt', 'DESC'], ['destroyTime', 'DESC']],
             limit: 1,
         });
 
-        if (
-            new Date(maxUpdateAt.updatedAt).getTime() >= lastUpdate.getTime() ||
-            new Date(maxUpdateAt.destroyTime).getTime() >= lastUpdate.getTime())
-        {
-            const messages = await Message.findAll(
-                {
+        if (maxUpdatedAt) {
+            if (new Date(maxUpdatedAt.updatedAt).getTime() >= lastUpdate.getTime() ||
+                new Date(maxUpdatedAt.destroyTime).getTime() >= lastUpdate.getTime()) {
+                const messages = await Message.findAll(
+                    {
 
-                    attributes: ['id', 'user_id', 'input', 'createdAt'],
-                    include: {
-                        model: User,
-                        attributes: ['firstName', 'lastName'], // Fetch firstName and lastName from User
-                    },
-                });
+                        attributes: ['id', 'user_id', 'input', 'createdAt'],
+                        include: {
+                            model: User,
+                            attributes: ['firstName', 'lastName'], // Fetch firstName and lastName from User
+                        },
+                    });
 
-            const filteredMessages = messages.map(message => ({
-                id: message.id, // Message ID (not user ID)
-                username: `${message.User.firstName} ${message.User.lastName}`,
-                message: message.input,
-                timestamp: message.createdAt,
-                isOwnedByUser: message.user_id === currentUserId // Check ownership
-            }));
+                const filteredMessages = messages.map(message => ({
+                    id: message.id, // Message ID (not user ID)
+                    username: `${message.User.firstName} ${message.User.lastName}`,
+                    message: message.input,
+                    timestamp: message.createdAt,
+                    isOwnedByUser: message.user_id === currentUserId // Check ownership
+                }));
 
-            res.json(filteredMessages);
+                res.json(filteredMessages);
+            }
+        }
+        else {
+            res.json([]);
         }
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch messages' });
