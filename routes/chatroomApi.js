@@ -72,7 +72,7 @@ router.post('/existingMessages', async (req, res) => {
         });
 
         // database is empty - therefore null
-        if (!maxUpdatedAt || !maxDeletedAt) {
+        if (!maxUpdatedAt && !maxDeletedAt) {
             // No messages exist
             return res.json({messages:[]});
         }
