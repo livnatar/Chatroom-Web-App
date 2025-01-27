@@ -3,15 +3,23 @@ const sequelize = require('./index');
 const { DataTypes } = require('sequelize');
 
 
-const Message = sequelize.define('Message', {
+const Message = sequelize.define('Message',
+    {
     user_id: DataTypes.INTEGER,
     input: {
         type: DataTypes.STRING,
         allowNull: false
     }
 }, {
+    sequelize,
+    paranoid: true,
+    deletedAt: 'destroyTime'
+},
+    {
     modelName: 'Message'
 });
+
+
 // const Message = sequelize.define('Message', {
 //     // Keep existing fields
 //     user_id: {

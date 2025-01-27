@@ -5,6 +5,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
+        let lastUpdate =
         //fetch messages from database if there are any
         Manager.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
