@@ -4,10 +4,11 @@ const express = require('express');
 const router = express.Router();
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
+const {checkSession} = require('../models/authorisation');
 
-// router.all("/", checkSession) //fix and add this
+router.all("/", checkSession) //fix and add this
 
-router.get('/existingMessages', async (req, res) => {
+router.post('/existingMessages', async (req, res) => {
 
     let lastUpdate = new Date(req.body.lastUpdate);
 
@@ -128,12 +129,12 @@ router.post('/save-msg', async (req, res) => {
 });
 
 
-async function verifyMessageOwner(messageId, userId) {
-    const message = await Message.findOne({
-        where: { id: messageId },
-        attributes: ['user_id'],
-    });
-    return message && message.user_id === userId;
-}
+// async function verifyMessageOwner(messageId, userId) {
+//     const message = await Message.findOne({
+//         where: { id: messageId },
+//         attributes: ['user_id'],
+//     });
+//     return message && message.user_id === userId;
+// }
 
 module.exports = router;

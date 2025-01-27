@@ -2,8 +2,7 @@
 //import { ChatroomUIModule } from './chatroomUI.js';
 
 (function() {
-
-    let lastUpdate = new Date();
+    let lastUpdate = null;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -166,7 +165,7 @@ const ChatroomAPI = (function() {
 
     const fetchMessages = async function (lastUpdate) {
         try {
-            const response = await fetch('/existingMessages', {
+            const response = await fetch('/api/existingMessages', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({lastUpdate})

@@ -7,6 +7,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const errorController = require('./controllers/error');
 const sequelize = require('./models/index');
+const {isNotLoggedIn} = require('./models/authorisation');
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
@@ -60,14 +61,14 @@ app.use((req, res, next) => {
     }
 })();
 
-// Middleware to check if the user is not logged in
-const isNotLoggedIn = (req, res, next) => {
-    if (req.session.userId) {
-        // If user is logged in, redirect to chatroom
-        return res.redirect('/chatroom');
-    }
-    next(); // If not logged in, proceed to the next middleware/route
-};
+// // Middleware to check if the user is not logged in
+// const isNotLoggedIn = (req, res, next) => {
+//     if (req.session.userId) {
+//         // If user is logged in, redirect to chatroom
+//         return res.redirect('/chatroom');
+//     }
+//     next(); // If not logged in, proceed to the next middleware/route
+// };
 
 
 // Routes
