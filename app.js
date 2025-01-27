@@ -13,7 +13,7 @@ const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
 const chatroomRouter = require('./routes/chatroom');
 const apiRouter = require('./routes/chatroomApi');
-
+const chatroomPagesRouter = require('./routes/chatroomPages');
 const {get404} = require("./controllers/error");
 
 var app = express();
@@ -73,16 +73,10 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/', chatroomRouter);
-
 app.use('/api', apiRouter);
-
-// Routes with middleware applied
-
-app.use('/', isNotLoggedIn, loginRouter);
-app.use('/register', isNotLoggedIn, registerRouter);
-
-//maybe move the safe pages in the chatroom to other route to do middleware
-
+app.use('/chatroom', chatroomPagesRouter);
+app.use('/', loginRouter);
+app.use('/register', registerRouter);
 
 
 // Catch unknown routes (404 errors)

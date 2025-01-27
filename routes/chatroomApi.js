@@ -6,7 +6,7 @@ const {Message} = require('../models/message');
 const {User} = require('../models/user');
 const {checkSession} = require('../models/authorisation');
 
-router.all("/", checkSession) //fix and add this
+router.all('/', checkSession)
 
 router.post('/existingMessages', async (req, res) => {
 
@@ -51,24 +51,7 @@ router.post('/existingMessages', async (req, res) => {
 });
 
 router.post('/check-session', async (req, res) => {
-
-    try {
-        const messageId = req.body.msgId;
-        const message = await Message.findOne({
-            where: { id: messageId },
-            attributes: ['user_id']
-        });
-
-        // If message is found and its user_id matches the session userId
-        if (message && req.session.userId && message.user_id === req.session.userId) {
-            res.json({ authenticated: true });
-        } else {
-            res.json({ authenticated: false });
-        }
-    } catch (error) {
-        console.error('Error checking session:', error);
-        return res.status(500).json({ authenticated: false });
-    }
+    return res.status(200);
 });
 
 router.post('/find-and-delete-msg', async (req, res) => {
@@ -127,6 +110,7 @@ router.post('/save-msg', async (req, res) => {
         return res.status(500).json({ authenticated: false });
     }
 });
+
 
 
 // async function verifyMessageOwner(messageId, userId) {

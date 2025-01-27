@@ -1,15 +1,18 @@
 
-var express = require('express');
-var router = express.Router();
-const loginController = require('../controllers/login');
-
-// router.all(/login, redirectToChat);
-// we have it in the apps the isNotLoggedIn func
+const express = require('express');
+const router = express.Router();
+const loginLogoutController = require('../controllers/loginLogout');
+const {isNotLoggedIn} = require('../models/authorisation');
 
 
-router.get('/login', loginController.getLogin);
+router.all('/login', isNotLoggedIn);
 
-router.post('/login',loginController.getLogin);
+router.get('/login', loginLogoutController.getLogin);
+
+router.post('/login',loginLogoutController.getLogin);
+
+router.get('/logout', loginLogoutController.logout);
+
 
 // router.get('/chatroom', loginController.getChatroom);
 //

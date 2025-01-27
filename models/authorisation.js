@@ -9,7 +9,20 @@ const isNotLoggedIn = (req, res, next) => {
     next(); // If not logged in, proceed to the next middleware/route
 };
 
-// Middleware to check if the user is logged in
+
+// Middleware to check if session expired in order to know if we can stay in the chatroom
+const checkIfSessionExists = (req, res, next) => {
+
+    // Check if the user ID is stored in the session
+    if (!req.session.userId) {
+        req.flash('msg', 'Please log in to access the chatroom');
+        return res.redirect('/login');
+    }
+    next(); // If not logged in, proceed to the next middleware/route
+};
+
+
+// REST_API- Middleware to check if the user is logged in
 const checkSession = (req, res, next) => {
 
     if (!req.session || !req.session.userId) {
@@ -21,4 +34,4 @@ const checkSession = (req, res, next) => {
 };
 
 
-module.exports = {isNotLoggedIn, checkSession};
+module.exports = {isNotLoggedIn, checkIfSessionExists, checkSession};
