@@ -105,14 +105,14 @@ exports.sendMessage = async (req, res, next) => {
 }
 
 exports.getSearchPage = (req, res, next) => {
-
-    // Check if the user ID is stored in the session
+    // Check if the user is logged in
     if (!req.session.userId) {
         req.flash('msg', 'Please log in to access the chatroom');
         return res.redirect('/login');
     }
 
-    res.render('searchPage');
+    // Render the search page without messages initially
+    res.render('searchPage', { messages: undefined });
 };
 
 exports.postFindMessages= async(req,res,next) => {
@@ -130,7 +130,7 @@ exports.postFindMessages= async(req,res,next) => {
         const filteredMessages = await Message.findAll({
             where: {
                 message: {
-                    [Sequelize.Op.like]: `%${query}%`,  // Case-insensitive search using LIKE for SQLite
+                    [Sequelize.Op.like]: `%${query.trim()}%`,  // Case-insensitive search using LIKE for SQLite
                 },
             },
         });
