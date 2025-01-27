@@ -50,7 +50,7 @@ router.post('/existingMessages', async (req, res) => {
     }
 });
 
-router.post('/check-session', async (req, res) => {
+router.post('/check-session', (res) => {
     return res.status(200);
 });
 
