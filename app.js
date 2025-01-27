@@ -73,9 +73,10 @@ const isNotLoggedIn = (req, res, next) => {
 // Routes
 app.use('/', chatroomRouter);
 
-app.use('/', apiRouter);
+app.use('/api', apiRouter);
 
 // Routes with middleware applied
+
 app.use('/', isNotLoggedIn, loginRouter);
 app.use('/register', isNotLoggedIn, registerRouter);
 

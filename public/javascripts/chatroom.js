@@ -3,9 +3,10 @@
 
 (function() {
 
+    let lastUpdate = new Date();
+
     document.addEventListener('DOMContentLoaded', function () {
 
-        let lastUpdate =
         //fetch messages from database if there are any
         Manager.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
@@ -20,8 +21,13 @@
 const Manager = (function (){
 
     const fetchAndDisplayMessages = async function () {
-        const messages = await ChatroomAPI.fetchMessages();
-        ChatroomUIModule.displayMessages(messages);
+
+        const messages = await ChatroomAPI.fetchMessages(lastUpdate);
+        lastUpdate = new Date();
+
+        if (messages) {
+            ChatroomUIModule.displayMessages(messages);
+        }
     }
 
     /***
@@ -158,9 +164,14 @@ const Manager = (function (){
 
 const ChatroomAPI = (function() {
 
-    const fetchMessages = async function () {
+    const fetchMessages = async function (lastUpdate) {
         try {
-            const response = await fetch('/existingMessages');
+            const response = await fetch('/existingMessages', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({lastUpdate})
+            });
+
             const validResponse = await status(response);
             return await response.json();
         }
