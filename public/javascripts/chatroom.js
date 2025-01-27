@@ -135,11 +135,13 @@ const Manager = (function (){
 
     const handleDelete = async function (msgId){
 
+        console.log(`Handling delete for message ID: ${msgId}`);
         try {
 
             const message = await ChatroomAPI.fetchDelete(msgId);
 
             if (message.deleted) {
+                console.log("Message successfully deleted");
                 fetchAndDisplayMessages().catch(error => {console.log(error)});
             }
             else {
