@@ -1,18 +1,12 @@
-<%- include('includes/headChatroom.ejs') %>
 
+<%- include('includes/headChatroom.ejs') %>
 
     <h1 class="text-center mb-4">Search Messages</h1>
 
     <!-- Search Form (POST method) -->
     <form method="post" action="/chatroom/findMessages" class="mb-5">
-        <div class="input-group">
-            <input
-                    type="text"
-                    name="query"
-                    class="form-control"
-                    placeholder="Enter a message to search..."
-                    required
-            />
+        <div class="input-group mx-3 d-flex">
+            <input type="text" name="query" class="form-control me-2" placeholder="Enter a message to search..." required>
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
     </form>

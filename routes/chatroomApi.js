@@ -52,24 +52,6 @@ router.post('/check-session', async (req, res) => {
         console.error('Error checking session:', error);
         return res.status(500).json({ authenticated: false });
     }
-
-    // try{
-    //     const messageId = req.body.msgId;
-    //     const user = await Message.findOne({
-    //         where: {id: messageId},
-    //         attributes:['user_id']
-    //     }).toJSON();
-    //
-    //     // Check if message exists and if user_id matches the session userId
-    //     if (user && req.session.userId && user.user_id === req.session.userId) {
-    //         res.json({ authenticated: true });
-    //     } else {
-    //         res.json({ authenticated: false });
-    //     }
-    // } catch (error) {
-    //     console.error('Error checking session:', error);
-    //     return res.status(500).json({ authenticated: false });
-    // }
 });
 
 router.post('/find-and-delete-msg', async (req, res) => {

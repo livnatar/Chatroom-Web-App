@@ -79,6 +79,8 @@ app.use('/', apiRouter);
 app.use('/', isNotLoggedIn, loginRouter);
 app.use('/register', isNotLoggedIn, registerRouter);
 
+//maybe move the safe pages in the chatroom to other route to do middleware
+
 
 
 // Catch unknown routes (404 errors)

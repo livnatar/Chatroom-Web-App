@@ -55,7 +55,7 @@ exports.getChatroom = async (req, res, next) => {
 
     // Render the chatroom
     const loggedUser = await User.findOne({ where: { id: req.session.userId } , attributes: ['firstName']});
-    res.render('chatroom', { pageTitle: 'Chatroom', username: loggedUser.firstName, msg:''});
+    res.render('chatroom', {username: loggedUser.firstName, msg:''});
 };
 
 exports.logout = (req, res, next) => {
