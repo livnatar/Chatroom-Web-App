@@ -14,6 +14,6 @@ router.post('/sendMessage', chatroomPagesController.sendMessage);
 
 router.post('/findMessages', chatroomPagesController.postFindMessages);
 
-router.get('/findMessages',chatroomPagesController.getFindMessages);
+//router.get('/findMessages',chatroomPagesController.getFindMessages);
 
 module.exports = router;

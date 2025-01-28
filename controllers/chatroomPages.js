@@ -6,11 +6,18 @@ const {Op} = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
+
+    const messages = res.locals.foundMessages;
+    const msg = messages.length > 0 ? messages : undefined;
+    const query = res.locals.query;
+
     // Render the search page without messages initially
-    res.render('searchPage', { messages: undefined });
+    res.render('searchPage', { messages: msg, query: query });
 };
 
 exports.postFindMessages = async (req, res, next) => {
+
+
     try {
         const query = req.body.query || '';
 
@@ -32,10 +39,14 @@ exports.postFindMessages = async (req, res, next) => {
             paranoid: true // Exclude soft-deleted messages
         });
 
-        res.render('searchPage', {
-            messages: filteredMessages,
-            query: query
-        });
+        req.flash('foundMessages', filteredMessages);
+        req.flash('query', query);
+        res.redirect('/chatroom/search');
+
+        // res.render('searchPage', {
+        //     messages: ,
+        //     query: query
+        // });
 
     } catch (err) {
         next(createError(500, `Search error: ${err.message}`));
@@ -70,6 +81,6 @@ exports.sendMessage = async (req, res, next) => {
     }
 }
 
-exports.getFindMessages = (req,res,next) => {
-    res.redirect('/');
-};
+// exports.getFindMessages = (req,res,next) => {
+//     res.redirect('/');
+// };

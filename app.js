@@ -47,6 +47,8 @@ app.use(flash());
 // Pass flash messages to all views
 app.use((req, res, next) => {
   res.locals.messages = req.flash('msg');
+  res.locals.foundMessages =  req.flash('foundMessages');
+  res.locals.query = req.flash('query');
   next();
 });
 
