@@ -19,18 +19,10 @@
         <% if (messages.length > 0) { %>
             <div class="grid">
                 <% for (const message of messages) { %>
-<!--                    <article class="card message-item mb-3">-->
-<!--                        <div class="card-body">-->
-<!--                            <p class="card-text"><%= message.input %></p>-->
-<!--                            <footer class="blockquote-footer">-->
-<!--                                <small>Posted on <%= new Date(message.createdAt).toLocaleString() %></small>-->
-<!--                            </footer>-->
-<!--                        </div>-->
-<!--                    </article>-->
                     <article class="card message-item mb-3">
                         <div class="card-body">
                             <p class="card-text"><%= message.input %></p>
-                            <footer class="blockquote-footer">
+                            <footer class="blockquote-footer mt-auto">
                                 <small>
                                     Posted by <%= message.User.firstName %> <%= message.User.lastName %>
                                     on <%= new Date(message.createdAt).toLocaleString() %>
