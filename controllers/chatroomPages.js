@@ -1,6 +1,7 @@
 
 const createError = require('http-errors');
 const {Message} = require("../models/message");
+const {User} = require("../models/user");
 const {Op} = require("sequelize");
 
 
@@ -21,9 +22,14 @@ exports.postFindMessages = async (req, res, next) => {
                     [Op.like]: `%${query.trim()}%`
                 }
             },
+            include: {
+                model: User,
+                attributes: ['firstName', 'lastName'], // Include user details
+            },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            paranoid: true // Exclude soft-deleted messages
         });
 
         res.render('searchPage', {
