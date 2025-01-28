@@ -1,36 +1,44 @@
 
 const createError = require('http-errors');
 const {Message} = require("../models/message");
-const Sequelize = require("sequelize");
+const {Op} = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
+
+    // if (!req.session.userId) {
+    //     req.flash('msg', 'Please log in to access the chatroom');
+    //     return res.redirect('/login');
+    // }
+
     // Render the search page without messages initially
     res.render('searchPage', { messages: undefined });
 };
 
-exports.postFindMessages= async(req,res,next) => {
-
+exports.postFindMessages = async (req, res, next) => {
     try {
-        const query = req.body.query || '';  // Get the search query from the form (POST data)
+        const query = req.body.query || '';
 
-        // Use Sequelize to search for messages that include the query (case-insensitive using LIKE in SQLite)
+        // Search for messages containing the query string
+        // With paranoid: true, Sequelize automatically excludes records where deletedAt is not null
         const filteredMessages = await Message.findAll({
             where: {
-                message: {
-                    [Sequelize.Op.like]: `%${query.trim()}%`,  // Case-insensitive search using LIKE for SQLite
-                },
+                input: {
+                    [Op.like]: `%${query.trim()}%`
+                }
             },
+            order: [
+                ['createdAt', 'DESC']
+            ]
         });
 
-        // Render the results to the 'search' page with filtered messages
         res.render('searchPage', {
-            messages: filteredMessages,  // Pass the filtered messages to the EJS template
+            messages: filteredMessages,
+            query: query
         });
 
     } catch (err) {
-        // Pass the error to the central error-handling middleware
-        return next(createError(500, `Unexpected error: ${err.message}`));
+        next(createError(500, `Search error: ${err.message}`));
     }
 };
 

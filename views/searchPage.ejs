@@ -1,38 +1,39 @@
-
 <%- include('includes/headChatroom.ejs') %>
 
-    <h1 class="text-center mb-4">Search Messages</h1>
+<div class="mx-3">
+    <h1 class="text-center mb-4 mt-4">Search Messages</h1>
 
-    <!-- Search Form (POST method) -->
     <form method="post" action="/chatroom/findMessages" class="mb-5">
-        <div class="input-group mx-3 d-flex">
-            <input type="text" name="query" class="form-control me-2" placeholder="Enter a message to search..." required>
+        <div class="input-group d-flex">
+            <input type="text"
+                   name="query"
+                   class="form-control me-2"
+                   placeholder="Enter a message to search..."
+                   value="<%= typeof query !== 'undefined' ? query : '' %>"
+                   required>
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
     </form>
 
-    <!-- Display Search Results -->
-    <% if (typeof messages !== 'undefined') { %> <!-- Only show results or "No messages" if a search was performed -->
-    <% if (messages.length > 0) { %>
-        <div class="grid">
-            <% for (const message of messages) { %>
-                <article class="card message-item mb-3">
-                    <header class="card-header">
-                        <h5 class="card-title"><%= message.username %></h5>
-                    </header>
-                    <div class="card-body">
-                        <p class="card-text"><%= message.message %></p>
-                        <footer class="blockquote-footer">
-                            <small>Posted on <%= new Date(message.timestamp).toLocaleString() %></small>
-                        </footer>
-                    </div>
-                </article>
-            <% } %>
-        </div>
-    <% } else { %>
-        <h2 class="text-center text-muted">No messages found!</h2>
+    <% if (typeof messages !== 'undefined') { %>
+        <% if (messages.length > 0) { %>
+            <div class="grid">
+                <% for (const message of messages) { %>
+                    <article class="card message-item mb-3">
+                        <div class="card-body">
+                            <p class="card-text"><%= message.input %></p>
+                            <footer class="blockquote-footer">
+                                <small>Posted on <%= new Date(message.createdAt).toLocaleString() %></small>
+                            </footer>
+                        </div>
+                    </article>
+                <% } %>
+            </div>
+        <% } else { %>
+            <h2 class="text-center text-muted mt-4">No messages found!</h2>
+        <% } %>
     <% } %>
-    <% } %>
+</div>
 </div>
 
 <%- include('includes/endChatroom.ejs') %>
