@@ -6,23 +6,17 @@ const {Op, Sequelize} = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
-
-    const messages = res.locals.foundMessages;
-    const msg = messages.length > 0 ? messages : undefined;
-    const query = res.locals.query;
-
-    // Render the search page without messages initially
-    res.render('searchPage', { messages: msg, query: query });
+    res.render('searchPage', {
+        messages: res.locals.foundMessages,
+        query: res.locals.query
+    });
 };
 
 exports.postFindMessages = async (req, res, next) => {
-
-
     try {
         const query = req.body.query || '';
+        console.log('Search Query:', query);
 
-        // Search for messages containing the query string
-        // With paranoid: true, Sequelize automatically excludes records where deletedAt is not null
         const filteredMessages = await Message.findAll({
             where: {
                 input: {
@@ -31,24 +25,26 @@ exports.postFindMessages = async (req, res, next) => {
             },
             include: {
                 model: User,
-                attributes: ['firstName', 'lastName'], // Include user details
+                attributes: ['firstName', 'lastName'],
             },
             order: [
                 ['createdAt', 'DESC']
             ],
-            paranoid: true // Exclude soft-deleted messages
+            paranoid: true
         });
 
-        req.flash('foundMessages', filteredMessages);
+        console.log('Found Messages:', filteredMessages.length);
+
+        const plainMessages  =  filteredMessages.length !== 0 ? filteredMessages: '' ;
+
+        // Store the plain objects in flash
+        req.flash('foundMessages', plainMessages);
         req.flash('query', query);
+
         res.redirect('/chatroom/search');
 
-        // res.render('searchPage', {
-        //     messages: ,
-        //     query: query
-        // });
-
     } catch (err) {
+        console.error('Search Error:', err);
         next(createError(500, `Search error: ${err.message}`));
     }
 };
@@ -80,7 +76,3 @@ exports.sendMessage = async (req, res, next) => {
         }
     }
 }
-
-// exports.getFindMessages = (req,res,next) => {
-//     res.redirect('/');
-// };

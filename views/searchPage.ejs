@@ -9,34 +9,31 @@
                    name="query"
                    class="form-control me-2"
                    placeholder="Enter a message to search..."
-                   value="<%= typeof query !== 'undefined' ? query : '' %>"
+                   value="<%= typeof query !== 'undefined' && query.length > 0 ? query : '' %>"
                    required>
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
     </form>
 
-    <% if (typeof messages !== 'undefined') { %>
-        <% if (messages.length > 0) { %>
-            <div class="grid">
-                <% for (const message of messages) { %>
-                    <article class="card message-item mb-3">
-                        <div class="card-body">
-                            <p class="card-text"><%= message.input %></p>
-                            <footer class="blockquote-footer mt-auto">
-                                <small>
-                                    Posted by <%= message.User.firstName %> <%= message.User.lastName %>
-                                    on <%= new Date(message.createdAt).toLocaleString() %>
-                                </small>
-                            </footer>
-                        </div>
-                    </article>
-                <% } %>
-            </div>
-        <% } else { %>
-            <h2 class="text-center text-muted mt-4">No messages found!</h2>
-        <% } %>
+    <% if (typeof messages !== 'undefined' && messages.length > 0) { %>
+        <div class="grid">
+            <% for (const message of messages) { %>
+                <article class="card message-item mb-3">
+                    <div class="card-body">
+                        <p class="card-text"><%= message.input %></p>
+                        <footer class="blockquote-footer mt-auto">
+                            <small>
+                                Posted by <%= message.User.firstName %> <%= message.User.lastName %>
+                                on <%= new Date(message.createdAt).toLocaleString() %>
+                            </small>
+                        </footer>
+                    </div>
+                </article>
+            <% } %>
+        </div>
+    <% } else if (typeof query !== 'undefined' && query.length > 0) { %>
+        <h2 class="text-center text-muted mt-4">No messages found for "<%= query %>"</h2>
     <% } %>
-</div>
 </div>
 
 <%- include('includes/endChatroom.ejs') %>

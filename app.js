@@ -46,9 +46,10 @@ app.use(flash());
 
 // Pass flash messages to all views
 app.use((req, res, next) => {
-  res.locals.messages = req.flash('msg');
-  res.locals.foundMessages =  req.flash('foundMessages');
-  res.locals.query = req.flash('query');
+  res.locals.messages = req.flash('msg')|| [];
+  res.locals.foundMessages =  req.flash('foundMessages')|| [];
+  res.locals.query = req.flash('query') || '';
+
   next();
 });
 
@@ -62,15 +63,6 @@ app.use((req, res, next) => {
         console.error('Unable to connect to the database:', error);
     }
 })();
-
-// // Middleware to check if the user is not logged in
-// const isNotLoggedIn = (req, res, next) => {
-//     if (req.session.userId) {
-//         // If user is logged in, redirect to chatroom
-//         return res.redirect('/chatroom');
-//     }
-//     next(); // If not logged in, proceed to the next middleware/route
-// };
 
 
 // Routes
