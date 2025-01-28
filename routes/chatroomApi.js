@@ -4,7 +4,8 @@ const express = require('express');
 const router = express.Router();
 // const {Message} = require('../models/message');
 // const {User} = require('../models/user');
-const {checkSession, checkIfSessionExists} = require('../models/authorisation');
+const {checkSession, checkIfSessionExists
+} = require('../models/authorisation');
 const chatroomAPIController = require('../controllers/chatroomAPI');
 //const { Sequelize } = require('sequelize');
 
