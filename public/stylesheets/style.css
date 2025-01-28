@@ -2,3 +2,8 @@
   width: 150px;  /* Set the width of the image */
   height: 150px;  /* Keep the aspect ratio intact */
 }
+
+/* Only the essential custom styles that can't be handled by Bootstrap */
+.message-wrapper .card-body {
+  padding-bottom: 40px;  /* Space for buttons */
+}
