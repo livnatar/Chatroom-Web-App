@@ -5,12 +5,6 @@ const {Op} = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
-
-    // if (!req.session.userId) {
-    //     req.flash('msg', 'Please log in to access the chatroom');
-    //     return res.redirect('/login');
-    // }
-
     // Render the search page without messages initially
     res.render('searchPage', { messages: undefined });
 };
@@ -46,18 +40,10 @@ exports.sendMessage = async (req, res, next) => {
 
     try {
         const { message } = req.body;
-        console.log(`try to sent the message - ${message}`);
 
-        if (!req.session.userId) {
-            // If no user data is available (cookie expired or not found), redirect back to the register page
-            req.flash('msg', 'Oops! It seems like you have been away for a bit too long');
-            res.redirect('/login');
-        }
+        const newMsg = await Message.create({user_id:req.session.userId, input:message});
+        res.redirect('/chatroom');
 
-        else {
-            const newMsg = await Message.create({user_id:req.session.userId, input:message});
-            res.redirect('/chatroom');
-        }
     }
     catch (err) {
         // Handle validation errors

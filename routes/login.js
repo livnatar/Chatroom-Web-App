@@ -14,8 +14,5 @@ router.post('/login',loginLogoutController.getLogin);
 router.get('/logout', loginLogoutController.logout);
 
 
-// router.get('/chatroom', loginController.getChatroom);
-//
-// router.post('/chatroom', loginController.postChatroom);
 
 module.exports = router;
