@@ -76,8 +76,8 @@ const Manager = (function (){
     const handleEdit = async function (msgId, msg){
 
         try {
-               await ChatroomAPI.fetchCheckSession();
-               ChatroomUIModule.editMsg(msgId,msg);
+            await ChatroomAPI.fetchCheckSession();
+            ChatroomUIModule.editMsg(msgId,msg);
         }
         catch (error) {
             console.log(error);
@@ -95,38 +95,48 @@ const Manager = (function (){
         }
     };
 
-    const handleSave = async function (msgId, newInput){
+    const handleSave = async function(msgId, newInput) {
         try {
-            if (await checkSession(msgId)) {
-                // means the session is valid
-
-                // fetch that finds the message and changes it's content
-                const response = await fetch('/save-msg', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({msgId, newInput})
-                });
-
-                const validateResponse = await ChatroomAPI.status(response);
-                const message = await response.json();
-
-                if (message.updated) {
-                    // in order to show the updated message
-                    ChatroomUIModule.saveMsg(msgId, newInput);
-                }
-                else {
-                    console.log("Failed to update the message");
-                }
-            }
-            else {
-                // If no session, redirect to login
-                window.location.href = '/login';
-            }
+            const result = await ChatroomAPI.fetchSave(msgId, newInput);
+            return result.updated;
+        } catch (error) {
+            console.error(error);
+            return false;
         }
-        catch (error) {
-            console.log(error);
-        }
-    }
+    };
+
+    // const handleSave = async function (msgId, newInput){
+    //     try {
+    //         if (await checkSession(msgId)) {
+    //             // means the session is valid
+    //
+    //             // fetch that finds the message and changes it's content
+    //             const response = await fetch('/save-msg', {
+    //                 method: 'POST',
+    //                 headers: {'Content-Type': 'application/json'},
+    //                 body: JSON.stringify({msgId, newInput})
+    //             });
+    //
+    //             const validateResponse = await ChatroomAPI.status(response);
+    //             const message = await response.json();
+    //
+    //             if (message.updated) {
+    //                 // in order to show the updated message
+    //                 ChatroomUIModule.saveMsg(msgId, newInput);
+    //             }
+    //             else {
+    //                 console.log("Failed to update the message");
+    //             }
+    //         }
+    //         else {
+    //             // If no session, redirect to login
+    //             window.location.href = '/login';
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
     // const handleCancel = async function (msgId, editedInput, originalInput){
     //     try {
@@ -208,33 +218,50 @@ const ChatroomAPI = (function() {
         }
     };
 
-    const fetchSave = async function (msgId,newInput) {
+    // const fetchSave = async function (msgId,newInput) {
+    //     try {
+    //         // fetch that finds the message and changes it's content
+    //         const response = await fetch('/save-msg', {
+    //             method: 'POST',
+    //             headers: {'Content-Type': 'application/json'},
+    //             body: JSON.stringify({msgId, newInput})
+    //         });
+    //
+    //         const validateResponse = await status(response);
+    //         const message = await response.json();
+    //     }
+    //     catch (error) {
+    //         console.log(`Error fetching save from database: ${error}`);
+    //     }
+    //
+    // };
+
+    const fetchSave = async function (msgId, newInput) {
         try {
-            // fetch that finds the message and changes it's content
-            const response = await fetch('/save-msg', {
+            const response = await fetch('/api/save-msg', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({msgId, newInput})
             });
 
             const validateResponse = await status(response);
-            const message = await response.json();
+            return await response.json();
         }
         catch (error) {
             console.log(`Error fetching save from database: ${error}`);
+            throw error;  // Propagate the error
         }
     };
 
-    const fetchCheckSession= async function () {
+    const fetchCheckSession = async function () {
         try {
-            // fetch that finds the message and changes it's content
             const response = await fetch('/api/check-session');
-
-            const validateResponse = await status(response);
-            return await response;
+            const validResponse = await status(response);
+            return validResponse.json();
         }
         catch (error) {
-            console.log(`Error fetching save from database: ${error}`);
+            console.log(`Error checking session: ${error}`);
+            throw error;
         }
     };
 
@@ -390,9 +417,8 @@ const ChatroomUIModule = (function() {
         const modalInput = document.getElementById('editMessageInput');
         modalInput.value = currentMessageText; // Pre-fill the modal with the current message
 
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
-        modal.show();
+        // Show the modal using Bootstrap
+        openModal();
     };
 
 
@@ -422,10 +448,9 @@ const ChatroomUIModule = (function() {
     // };
 
     const cancelMsg = function () {
-        // Simply close the modal without saving
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
-        modal.hide();
 
+        closeModal();
+        currentEditingMsgId = null;
         console.log('Edit cancelled for message ID:', currentEditingMsgId);
     };
 
@@ -472,29 +497,88 @@ const ChatroomUIModule = (function() {
     //     console.log(`Message with ID ${msgId} updated to: "${newMessageText}"`);
     // };
 
-    const saveMsg = function () {
+    // const saveMsg = function () {
+    //     const modalInput = document.getElementById('editMessageInput');
+    //     const newMessageText = modalInput.value.trim();
+    //
+    //     if (!newMessageText) {
+    //         alert('Message cannot be empty!');
+    //         return;
+    //     }
+    //
+    //     // Update the DOM with the new message
+    //     const messageElement = document.querySelector(`.card-text[data-message-id="${currentEditingMsgId}"]`);
+    //     if (messageElement) {
+    //         messageElement.textContent = newMessageText;
+    //     }
+    //
+    //     // Close the modal
+    //     const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
+    //     modal.hide();
+    //
+    //     // Call the backend to save the changes
+    //     Manager.handleSave(currentEditingMsgId, newMessageText);
+    // };
+
+    const saveMsg = async function () {
         const modalInput = document.getElementById('editMessageInput');
         const newMessageText = modalInput.value.trim();
 
         if (!newMessageText) {
-            alert('Message cannot be empty!');
+            showError('Message cannot be empty!');
             return;
         }
 
-        // Update the DOM with the new message
-        const messageElement = document.querySelector(`.card-text[data-message-id="${currentEditingMsgId}"]`);
-        if (messageElement) {
-            messageElement.textContent = newMessageText;
+        try {
+            // Call the Manager's save handler
+            const success = await Manager.handleSave(currentEditingMsgId, newMessageText);
+
+            if (success) {
+                // Update UI only after successful save
+                updateMessageInUI(currentEditingMsgId, newMessageText);
+                closeModal();
+                currentEditingMsgId = null;
+            } else {
+                showError('Failed to save message');
+            }
+        } catch (error) {
+            showError('Error saving message');
+            console.error(error);
         }
-
-        // Close the modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
-        modal.hide();
-
-        // Call the backend to save the changes
-        Manager.handleSave(currentEditingMsgId, newMessageText);
     };
 
+    const showError = function(message) {
+        // // You could implement this in different ways:
+        // // Option 1: Alert (simple but not ideal)
+        // alert(message);
+
+        //Option 2: Bootstrap alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.textContent = message;
+        document.getElementById('editMessageModal').prepend(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3000);
+    };
+
+    const updateMessageInUI = function(messageId, newText) {
+        const messageElement = document.querySelector(`.card-text[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            messageElement.textContent = newText;
+        }
+    };
+
+    // Private UI helper functions
+    const openModal = function() {
+        const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+        modal.show();
+    };
+
+    const closeModal = function() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
+        if (modal) {
+            modal.hide();
+        }
+    };
 
     return {
         displayMessages,
