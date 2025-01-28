@@ -22,16 +22,31 @@ const checkIfSessionExists = (req, res, next) => {
 };
 
 
-// REST_API- Middleware to check if the user is logged in
+// // REST_API- Middleware to check if the user is logged in
+// const checkSession = (req, res, next) => {
+//
+//     if (!req.session || !req.session.userId) {
+//
+//         // Return 401 Unauthorized if session is missing or user is not logged in
+//         return res.status(401).json({ message: 'Unauthorized: User not logged in' });
+//     }
+//     next(); // Proceed to the next middleware or route handler
+// };
+
 const checkSession = (req, res, next) => {
-
     if (!req.session || !req.session.userId) {
-
-        // Return 401 Unauthorized if session is missing or user is not logged in
+        // Return 401 Unauthorized if session is missing
         return res.status(401).json({ message: 'Unauthorized: User not logged in' });
     }
+
+    // Respond if the path is `/api`, otherwise proceed to the next middleware
+    if (req.path === '/') {
+        return res.status(200).json({ message: 'Session is valid' });
+    }
+
     next(); // Proceed to the next middleware or route handler
 };
+
 
 
 module.exports = {isNotLoggedIn, checkIfSessionExists, checkSession};

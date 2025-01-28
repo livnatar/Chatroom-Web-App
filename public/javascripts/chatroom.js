@@ -253,17 +253,28 @@ const ChatroomAPI = (function() {
         }
     };
 
+    // const fetchCheckSession = async function () {
+    //     try {
+    //         const response = await fetch('/api/check-session');
+    //         const validResponse = await status(response);
+    //         return validResponse.json();
+    //     }
+    //     catch (error) {
+    //         console.log(`Error checking session: ${error}`);
+    //         throw error;
+    //     }
+    // };
     const fetchCheckSession = async function () {
         try {
-            const response = await fetch('/api/check-session');
+            const response = await fetch('/api'); // Calls the new GET /api route
             const validResponse = await status(response);
             return validResponse.json();
-        }
-        catch (error) {
-            console.log(`Error checking session: ${error}`);
+        } catch (error) {
+            console.error(`Error checking session: ${error.message}`);
             throw error;
         }
     };
+
 
     function status(response) {
 
