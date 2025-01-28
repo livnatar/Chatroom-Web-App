@@ -2,7 +2,7 @@
 const createError = require('http-errors');
 const {Message} = require("../models/message");
 const {User} = require("../models/user");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
