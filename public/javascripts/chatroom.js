@@ -12,7 +12,7 @@ const POLLING = 10000*100;
         Manager.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
         // Event listener for the Save button in the modal
-        document.getElementById('saveEditButton').addEventListener('click', Manager.saveMsg);
+        document.getElementById('saveEditButton').addEventListener('click', ChatroomAPI.saveMsg);
 
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', Manager.handleCancel); // Handles modal close
 
