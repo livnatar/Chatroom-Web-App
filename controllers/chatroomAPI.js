@@ -2,8 +2,72 @@
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
 
-exports.existingMessages = async (req, res, next) => {
+// exports.existingMessages = async (req, res, next) => {
+//
+//     const lastUpdate = new Date(req.body.lastUpdate);
+//
+//     try {
+//         const currentUserId = req.session.userId;
+//
+//         // Find the latest updatedAt timestamp, including deleted records
+//         const maxUpdatedAt = await Message.findOne({
+//             attributes: ['updatedAt'],
+//             order: [['updatedAt', 'DESC']],
+//             limit: 1,
+//             paranoid: false // Include soft-deleted records
+//         });
+//
+//         // Find the latest deletedAt timestamp
+//         const maxDeletedAt = await Message.findOne({
+//             attributes: ['deletedAt'],
+//             order: [['deletedAt', 'DESC']],
+//             limit: 1,
+//             paranoid: false // Include soft-deleted records
+//         });
+//
+//         // If database is empty
+//         if (!maxUpdatedAt?.updatedAt && !maxDeletedAt?.deletedAt) {
+//             return res.json({ messages: [] });
+//         }
+//
+//         // Get the latest timestamps
+//         const maxUpdatedTime = maxUpdatedAt ? new Date(maxUpdatedAt.updatedAt).getTime() : 0;
+//         const maxDeletedTime = maxDeletedAt ? new Date(maxDeletedAt.deletedAt).getTime() : 0;
+//
+//         // Calculate the maximum timestamp
+//         const maxTime = Math.max(maxUpdatedTime, maxDeletedTime);
+//
+//         if (maxTime >= lastUpdate.getTime()) {
+//             // Fetch all non-deleted messages
+//             const messages = await Message.findAll({
+//                 attributes: ['id', 'user_id', 'input', 'createdAt'],
+//                 include: {
+//                     model: User,
+//                     attributes: ['firstName', 'lastName'],
+//                 },
+//                 // Don't include soft-deleted messages in the results
+//                 paranoid: true
+//             });
+//
+//             const filteredMessages = messages.map((message) => ({
+//                 id: message.id,
+//                 username: `${message.User.firstName} ${message.User.lastName}`,
+//                 message: message.input,
+//                 timestamp: message.createdAt,
+//                 isOwnedByUser: message.user_id === currentUserId,
+//             }));
+//
+//             return res.json({ messages: filteredMessages });
+//         } else {
+//             return res.json({ messages: [] });
+//         }
+//     } catch (error) {
+//         console.error('Error fetching messages:', error);
+//         res.status(500).json({ error: 'Failed to fetch messages' });
+//     }
+// };
 
+exports.existingMessages = async (req, res, next) => {
     const lastUpdate = new Date(req.body.lastUpdate);
 
     try {
@@ -25,31 +89,37 @@ exports.existingMessages = async (req, res, next) => {
             paranoid: false // Include soft-deleted records
         });
 
-        // If database is empty
-        if (!maxUpdatedAt?.updatedAt && !maxDeletedAt?.deletedAt) {
-            return res.json({ messages: [] });
+        // Fetch all non-deleted messages
+        const nonDeletedMessages = await Message.findAll({
+            attributes: ['id', 'user_id', 'input', 'createdAt'],
+            include: {
+                model: User,
+                attributes: ['firstName', 'lastName'],
+            },
+            paranoid: true // Don't include soft-deleted messages
+        });
+
+        // If there are no non-deleted messages, check why
+        if (nonDeletedMessages.length === 0) {
+            if (!maxUpdatedAt?.updatedAt && !maxDeletedAt?.deletedAt) {
+                // Case: The database is completely empty
+                return res.json({ status: 'INITIAL_LOAD', messages: [] });
+            }
+
+            if (maxDeletedAt?.deletedAt && maxDeletedAt.deletedAt > lastUpdate) {
+                // Case: All messages have been deleted since lastUpdate
+                return res.json({ status: 'ALL_DELETED', messages: [] });
+            }
         }
 
-        // Get the latest timestamps
+        // Determine the latest relevant timestamp (updates or deletions)
         const maxUpdatedTime = maxUpdatedAt ? new Date(maxUpdatedAt.updatedAt).getTime() : 0;
         const maxDeletedTime = maxDeletedAt ? new Date(maxDeletedAt.deletedAt).getTime() : 0;
-
-        // Calculate the maximum timestamp
         const maxTime = Math.max(maxUpdatedTime, maxDeletedTime);
 
-        if (maxTime >= lastUpdate.getTime()) {
-            // Fetch all non-deleted messages
-            const messages = await Message.findAll({
-                attributes: ['id', 'user_id', 'input', 'createdAt'],
-                include: {
-                    model: User,
-                    attributes: ['firstName', 'lastName'],
-                },
-                // Don't include soft-deleted messages in the results
-                paranoid: true
-            });
-
-            const filteredMessages = messages.map((message) => ({
+        if (maxTime > lastUpdate.getTime()) {
+            // Case: There are updated messages
+            const filteredMessages = nonDeletedMessages.map((message) => ({
                 id: message.id,
                 username: `${message.User.firstName} ${message.User.lastName}`,
                 message: message.input,
@@ -57,9 +127,13 @@ exports.existingMessages = async (req, res, next) => {
                 isOwnedByUser: message.user_id === currentUserId,
             }));
 
-            return res.json({ messages: filteredMessages });
+            return res.json({
+                status: 'UPDATED',
+                messages: filteredMessages
+            });
         } else {
-            return res.json({ messages: [] });
+            // Case: No changes since the last update
+            return res.json({ status: 'NO_CHANGE', messages: [] });
         }
     } catch (error) {
         console.error('Error fetching messages:', error);

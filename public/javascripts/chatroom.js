@@ -1,7 +1,7 @@
 
 //import { ChatroomUIModule } from './chatroomUI.js';
 
-const POLLING = 10000*100;
+const POLLING = 10000 ;
 
 (function() {
     let lastUpdate = null;
@@ -23,30 +23,60 @@ const POLLING = 10000*100;
 
 const Manager = (function (){
 
-    const fetchAndDisplayMessages = async function () {
-    try {
-        const response = await ChatroomAPI.fetchMessages(lastUpdate);
-        lastUpdate = new Date();
+    // const fetchAndDisplayMessages = async function () {
+    // try {
+    //     const response = await ChatroomAPI.fetchMessages(lastUpdate);
+    //     lastUpdate = new Date();
+    //
+    //     if (response && Array.isArray(response.messages)) {
+    //         if (response.messages.length > 0) {
+    //             ChatroomUIModule.displayMessages(response.messages);
+    //         }
+    //         else {
+    //             console.log('No messages to display');
+    //         }
+    //     }
+    //     else if (response.error) {
+    //         console.error('Error from server:', response.error);
+    //     }
+    //     else {
+    //         console.log('Unexpected response format:', response);
+    //     }
+    // }
+    // catch (error) {
+    //     console.error('Error fetching messages:', error);
+    // }
+//}
 
-        if (response && Array.isArray(response.messages)) {
-            if (response.messages.length > 0) {
-                ChatroomUIModule.displayMessages(response.messages);
+    const fetchAndDisplayMessages = async function () {
+        try {
+            const response = await ChatroomAPI.fetchMessages(lastUpdate);
+            lastUpdate = new Date();
+
+            if (response && response.status) {
+                switch (response.status) {
+                    case 'INITIAL_LOAD':
+                    case 'UPDATED':
+                        ChatroomUIModule.displayMessages(response.messages);
+                        break;
+                    case 'ALL_DELETED':
+                        console.log('All messages have been deleted.');
+                        ChatroomUIModule.clearMessages();
+                        break;
+                    case 'NO_CHANGE':
+                        break;
+                    default:
+                        console.error('Unknown status from server:', response.status);
+                }
+            } else if (response.error) {
+                console.error('Error from server:', response.error);
+            } else {
+                console.log('Unexpected response format:', response);
             }
-            else {
-                console.log('No messages to display');
-            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
         }
-        else if (response.error) {
-            console.error('Error from server:', response.error);
-        }
-        else {
-            console.log('Unexpected response format:', response);
-        }
-    }
-    catch (error) {
-        console.error('Error fetching messages:', error);
-    }
-}
+    };
 
     /***
      This function is responsible for checking if there's an existing session
@@ -591,11 +621,18 @@ const ChatroomUIModule = (function() {
         }
     };
 
+    const clearMessages = function () {
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        chatMessagesDiv.innerHTML = '';
+    };
+
+
     return {
         displayMessages,
         editMsg,
         cancelMsg,
-        saveMsg
+        saveMsg,
+        clearMessages
     };
 
 })();
