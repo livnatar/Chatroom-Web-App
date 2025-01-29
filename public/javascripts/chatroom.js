@@ -12,7 +12,7 @@ const POLLING = 10000 ;
         Manager.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
         // Event listener for the Save button in the modal
-        document.getElementById('saveEditButton').addEventListener('click', ChatroomAPI.saveMsg);
+        document.getElementById('saveEditButton').addEventListener('click', ChatroomUIModule.saveMsg);
 
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', Manager.handleCancel); // Handles modal close
 
@@ -460,112 +460,23 @@ const ChatroomUIModule = (function() {
         openModal();
     };
 
-
-    // const cancelMsg = function (msgId, editInput, originalMessageText) {
-    //
-    //     // Restore the original message text
-    //     const messageElement = editInput.closest('.card-body');
-    //     const messageTextElement = document.createElement('p');
-    //     messageTextElement.classList.add('card-text');
-    //     messageTextElement.textContent = originalMessageText;
-    //     editInput.replaceWith(messageTextElement);
-    //
-    //     // Reset the buttons
-    //     const editButton = messageElement.querySelector(`.edit-button[data-message-id="${msgId}"]`);
-    //     editButton.textContent = 'Edit';
-    //     editButton.classList.remove('btn-success');
-    //     editButton.classList.add('btn-warning');
-    //     editButton.removeEventListener('click', manager.handleSave);
-    //     editButton.addEventListener('click', () => Manager.HandleEdit(msgId));
-    //
-    //     const deleteButton = messageElement.querySelector(`.delete-button[data-message-id="${msgId}"]`);
-    //     deleteButton.textContent = 'Delete';
-    //     deleteButton.classList.remove('btn-secondary');
-    //     deleteButton.classList.add('btn-danger');
-    //     deleteButton.removeEventListener('click', handleCancel);
-    //     deleteButton.addEventListener('click', () => handleDelete(msgId));
-    // };
-
     const cancelMsg = function () {
-
         closeModal();
         currentEditingMsgId = null;
         console.log('Edit cancelled for message ID:', currentEditingMsgId);
     };
 
-
-    // const saveMsg =  function (msgId, editInput) {
-    //
-    //     // Ensure the input field is required
-    //     editInput.required = true;
-    //
-    //     // Trigger validation by checking the validity of the input
-    //     if (!editInput.checkValidity()) {
-    //         editInput.reportValidity(); // Show browser's native validation message
-    //         return;
-    //     }
-    //
-    //     // Get the new message text
-    //     const newMessageText = editInput.value.trim();
-    //
-    //     // Replace the input field with the new message text
-    //     const newMessageElement = document.createElement('p');
-    //     newMessageElement.classList.add('card-text');
-    //     newMessageElement.textContent = newMessageText;
-    //     editInput.replaceWith(newMessageElement);
-    //
-    //     // Get the save button and change it back to an edit button
-    //     const saveButton = document.querySelector(`.edit-button[data-message-id="${msgId}"]`);
-    //     saveButton.textContent = 'Edit';
-    //     saveButton.classList.remove('btn-success');
-    //     saveButton.classList.add('btn-warning');
-    //
-    //     // Remove the current save listener and add an edit listener
-    //     saveButton.removeEventListener('click', Manager.handleSave);
-    //     saveButton.addEventListener('click', () => Manager.handleEdit(msgId));
-    //
-    //     // Get the "Cancel" button and change it back to "Delete"
-    //     const cancelButton = document.querySelector(`.delete-button[data-message-id="${msgId}"]`);
-    //     cancelButton.textContent = 'Delete';
-    //     cancelButton.classList.remove('btn-secondary');
-    //     cancelButton.classList.add('btn-danger');
-    //     cancelButton.removeEventListener('click', Manager.handleCancel);
-    //     cancelButton.addEventListener('click', () => Manager.handleDelete(msgId));
-    //
-    //     // Log the update to the console
-    //     console.log(`Message with ID ${msgId} updated to: "${newMessageText}"`);
-    // };
-
-    // const saveMsg = function () {
-    //     const modalInput = document.getElementById('editMessageInput');
-    //     const newMessageText = modalInput.value.trim();
-    //
-    //     if (!newMessageText) {
-    //         alert('Message cannot be empty!');
-    //         return;
-    //     }
-    //
-    //     // Update the DOM with the new message
-    //     const messageElement = document.querySelector(`.card-text[data-message-id="${currentEditingMsgId}"]`);
-    //     if (messageElement) {
-    //         messageElement.textContent = newMessageText;
-    //     }
-    //
-    //     // Close the modal
-    //     const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
-    //     modal.hide();
-    //
-    //     // Call the backend to save the changes
-    //     Manager.handleSave(currentEditingMsgId, newMessageText);
-    // };
-
     const saveMsg = async function () {
+
+        const form = document.getElementById('editMessageForm');
         const modalInput = document.getElementById('editMessageInput');
         const newMessageText = modalInput.value.trim();
 
-        if (!newMessageText) {
-            showError('Message cannot be empty!');
-            return;
+        // Trigger HTML form validation
+        if (!form.checkValidity()) {
+            // This will trigger the HTML5 validation message if the input is empty
+            modalInput.reportValidity(); // Show the browser's validation message
+            return; // Stop the function execution
         }
 
         try {
@@ -584,19 +495,6 @@ const ChatroomUIModule = (function() {
             showError('Error saving message');
             console.error(error);
         }
-    };
-
-    const showError = function(message) {
-        // // You could implement this in different ways:
-        // // Option 1: Alert (simple but not ideal)
-        // alert(message);
-
-        //Option 2: Bootstrap alert
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger';
-        alertDiv.textContent = message;
-        document.getElementById('editMessageModal').prepend(alertDiv);
-        setTimeout(() => alertDiv.remove(), 3000);
     };
 
     const updateMessageInUI = function(messageId, newText) {
