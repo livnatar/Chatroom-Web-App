@@ -109,11 +109,11 @@ const Manager = (function (){
 
         try {
             // Call API with the data
-            const result = await ChatroomAPI.fetchSave(messageData.msgId, messageData.newText);
+            const result = await ChatroomAPI.fetchSave(messageData.currentEditingMsgId, messageData.newText);
 
             // Update UI based on result
             if (result.updated) {
-                ChatroomUIModule.updateMessageInUI(messageData.msgId, messageData.newText);
+                ChatroomUIModule.updateMessageInUI(messageData.currentEditingMsgId, messageData.newText);
                 ChatroomUIModule.closeModal();
                 ChatroomUIModule.clearEditingState();
             }
@@ -287,7 +287,6 @@ const ChatroomUIModule = (function() {
 
     let currentEditingMsgId = null; // To keep track of the message being edited
 
-    // Function to display messages in the chat area
     const displayMessages = function (messages) {
 
         const chatMessagesDiv = document.getElementById('chatMessages');
@@ -353,52 +352,6 @@ const ChatroomUIModule = (function() {
 
     };
 
-    // const editMsg  = function (msgId) {
-    //
-    //     // Find the message card using the msgId
-    //     const messageElement = document.querySelector(`[data-message-id="${msgId}"]`).closest('.card-body');
-    //
-    //     if (!messageElement) {
-    //         console.error('Message element not found for ID:', msgId);
-    //         return;
-    //     }
-    //
-    //     // Get the current message text
-    //     const messageTextElement = messageElement.querySelector('.card-text');
-    //     const currentMessageText = messageTextElement.textContent;
-    //
-    //     // Create a text input for editing the message
-    //     const editInput = document.createElement('input');
-    //     editInput.type = 'text';
-    //     editInput.classList.add('form-control', 'mb-2'); // Add Bootstrap styles
-    //     editInput.value = currentMessageText; // Pre-fill with the current message
-    //     editInput.required = true; // Make the input required
-    //
-    //
-    //     // Replace the message text with the input field
-    //     messageTextElement.replaceWith(editInput);
-    //
-    //     // Get the edit button and change it to a save button
-    //     const editButton = messageElement.querySelector(`.edit-button[data-message-id="${msgId}"]`);
-    //     editButton.textContent = 'Save';
-    //     editButton.classList.remove('btn-warning');
-    //     editButton.classList.add('btn-success');
-    //
-    //     // Change the delete button to a cancel button
-    //     const deleteButton = messageElement.querySelector(`.delete-button[data-message-id="${msgId}"]`);
-    //     deleteButton.textContent = 'Cancel';
-    //     deleteButton.classList.remove('btn-danger');
-    //     deleteButton.classList.add('btn-secondary');
-    //
-    //     // Remove the current listeners and add new ones
-    //     deleteButton.removeEventListener('click', Manager.handleDelete); // Remove delete behavior
-    //     deleteButton.addEventListener('click', () => Manager.handleCancel(msgId, editInput, currentMessageText)); // Add cancel behavior
-    //
-    //     // Remove the edit button listener and add a save listener
-    //     editButton.removeEventListener('click', Manager.handleEdit);
-    //     editButton.addEventListener('click', () => Manager.handleSave(msgId, editInput));
-    // };
-
     const editMsg = function (msgId, currentMessageText) {
 
         currentEditingMsgId = msgId; // Track the message being edited
@@ -412,44 +365,11 @@ const ChatroomUIModule = (function() {
     const cancelMsg = function () {
         closeModal();
         currentEditingMsgId = null;
-        console.log('Edit cancelled for message ID:', currentEditingMsgId);
-    };
-
-    const saveMsg = async function () {
-
-        const form = document.getElementById('editMessageForm');
-        const modalInput = document.getElementById('editMessageInput');
-        const newMessageText = modalInput.value.trim();
-
-        // Trigger HTML form validation
-        if (!form.checkValidity()) {
-            // This will trigger the HTML5 validation message if the input is empty
-            modalInput.reportValidity(); // Show the browser's validation message
-            return; // Stop the function execution
-        }
-
-        try {
-            // Call the Manager's save handler
-            const success = await Manager.handleSave(currentEditingMsgId, newMessageText);
-
-            if (success) {
-                // Update UI only after successful save
-                updateMessageInUI(currentEditingMsgId, newMessageText);
-                closeModal();
-                currentEditingMsgId = null;
-            } else {
-                showError('Failed to save message');
-            }
-        } catch (error) {
-            showError('Error saving message');
-            console.error(error);
-        }
     };
 
     const getEditingMessageData = function() {
 
         const modalInput = document.getElementById('editMessageInput');
-        const msgId = modalInput.getAttribute('data-editing-msg-id');
         const newText = modalInput.value.trim();
 
         if (!newText) {
@@ -457,13 +377,22 @@ const ChatroomUIModule = (function() {
             return null;
         }
 
-        return {msgId, newText};
+        return {currentEditingMsgId, newText};
     };
 
     const updateMessageInUI = function(messageId, newText) {
-        const messageElement = document.querySelector(`.card-text[data-message-id="${messageId}"]`);
-        if (messageElement) {
-            messageElement.textContent = newText;
+
+        // Find the edit button first using the message ID
+        const editButton = document.querySelector(`button.edit-button[data-message-id="${messageId}"]`);
+        if (editButton) {
+            // Go up to the card-body and find the message paragraph (p.mb-4)
+            const cardBody = editButton.closest('.card-body');
+            if (cardBody) {
+                const messageElement = cardBody.querySelector('p.mb-4');
+                if (messageElement) {
+                    messageElement.textContent = newText;
+                }
+            }
         }
     };
 
@@ -486,6 +415,7 @@ const ChatroomUIModule = (function() {
 
     const clearEditingState = function() {
         document.getElementById('editMessageInput').value = '';
+        currentEditingMsgId = null;
     };
 
 
@@ -494,7 +424,6 @@ const ChatroomUIModule = (function() {
         displayMessages,
         editMsg,
         cancelMsg,
-        saveMsg,
         clearMessages,
         getEditingMessageData,
         closeModal,

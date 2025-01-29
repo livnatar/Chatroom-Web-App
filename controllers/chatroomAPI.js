@@ -108,9 +108,9 @@ exports.saveMsg = async (req, res, next) => {
         // // Check if message exists and if user_id matches the session userId
         // if (message && req.session.userId && message.user_id === req.session.userId) {
         //     // Update the message if user_id matches
-        await Message.update({
-            input: newMsg ,
-            where: { id: messageId } });
+        await Message.update(
+            { input: newMsg },
+            { where: { id: messageId } });
 
         res.json({ updated: true, newInput: newMsg });
         // }
