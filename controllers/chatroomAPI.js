@@ -101,24 +101,22 @@ exports.saveMsg = async (req, res, next) => {
         const messageId = req.body.msgId;
         const newMsg = req.body.newInput;
 
-        const message = await Message.findOne({
-            where: {id: messageId},
-            attributes:['user_id', 'input']
-        });
+        // const message = await Message.findOne({
+        //     where: {id: messageId},
+        //     attributes:['user_id', 'input']});
+        //
+        // // Check if message exists and if user_id matches the session userId
+        // if (message && req.session.userId && message.user_id === req.session.userId) {
+        //     // Update the message if user_id matches
+        await Message.update({
+            input: newMsg ,
+            where: { id: messageId } });
 
-        // Check if message exists and if user_id matches the session userId
-        if (message && req.session.userId && message.user_id === req.session.userId) {
-            // Update the message if user_id matches
-            await Message.update(
-                { input: newMsg },
-                { where: { id: messageId } }
-            );
-
-            res.json({ updated: true, newInput: newMsg });
-        }
-        else {
-            res.json({ updated: false });
-        }
+        res.json({ updated: true, newInput: newMsg });
+        // }
+        // else {
+        //     res.json({ updated: false });
+        // }
     }
     catch (err) {
         // Handle validation errors

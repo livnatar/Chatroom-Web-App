@@ -12,8 +12,7 @@ const POLLING = 10000 ;
         Manager.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
         // Event listener for the Save button in the modal
-        document.getElementById('saveEditButton').addEventListener('click', ChatroomUIModule.saveMsg);
-
+        document.getElementById('saveEditButton').addEventListener('click', Manager.initiateMessageSave);
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', Manager.handleCancel); // Handles modal close
 
         // display messages every 10 seconds
@@ -48,7 +47,7 @@ const Manager = (function (){
     // }
 //}
 
-    const fetchAndDisplayMessages = async function () {
+    const fetchAndDisplayMessages = async function() {
         try {
             const response = await ChatroomAPI.fetchMessages(lastUpdate);
             lastUpdate = new Date();
@@ -78,32 +77,7 @@ const Manager = (function (){
         }
     };
 
-    /***
-     This function is responsible for checking if there's an existing session
-     ***/
-    // const checkSession = async function (msgId) {
-    //     try {
-    //         const response = await fetch('/check-session', {
-    //             method: 'POST',
-    //             headers: {'Content-Type': 'application/json'},
-    //             body: JSON.stringify({msgId})
-    //         });
-    //
-    //         // Validate the response status
-    //         const validateResponse = await ChatroomAPI.status(response);
-    //
-    //         // Parse the response and check if the session is authenticated
-    //         const session = await response.json();
-    //         return session.authenticated;
-    //     }
-    //     catch (error) {
-    //         console.error('Error checking session:', error);
-    //         return false;
-    //     }
-    //
-    // }
-
-    const handleEdit = async function (msgId, msg){
+    const handleEdit = async function(msgId, msg){
 
         try {
             await ChatroomAPI.fetchCheckSession();
@@ -114,7 +88,7 @@ const Manager = (function (){
         }
     };
 
-    const handleCancel = async function (){
+    const handleCancel = async function(){
 
         try {
                await ChatroomAPI.fetchCheckSession();
@@ -125,63 +99,37 @@ const Manager = (function (){
         }
     };
 
-    const handleSave = async function(msgId, newInput) {
+    const initiateMessageSave = async function() {
+
+        // Get message data from the UI Module
+        const messageData = ChatroomUIModule.getEditingMessageData();
+        if (!messageData) {
+            return;
+        }
+
         try {
-            const result = await ChatroomAPI.fetchSave(msgId, newInput);
-            return result.updated;
+            // Call API with the data
+            const result = await ChatroomAPI.fetchSave(messageData.msgId, messageData.newText);
+
+            // Update UI based on result
+            if (result.updated) {
+                ChatroomUIModule.updateMessageInUI(messageData.msgId, messageData.newText);
+                ChatroomUIModule.closeModal();
+                ChatroomUIModule.clearEditingState();
+            }
         } catch (error) {
             console.error(error);
-            return false;
         }
     };
-
-    // const handleSave = async function (msgId, newInput){
+    // const handleSave = async function(msgId, newInput) {
     //     try {
-    //         if (await checkSession(msgId)) {
-    //             // means the session is valid
-    //
-    //             // fetch that finds the message and changes it's content
-    //             const response = await fetch('/save-msg', {
-    //                 method: 'POST',
-    //                 headers: {'Content-Type': 'application/json'},
-    //                 body: JSON.stringify({msgId, newInput})
-    //             });
-    //
-    //             const validateResponse = await ChatroomAPI.status(response);
-    //             const message = await response.json();
-    //
-    //             if (message.updated) {
-    //                 // in order to show the updated message
-    //                 ChatroomUIModule.saveMsg(msgId, newInput);
-    //             }
-    //             else {
-    //                 console.log("Failed to update the message");
-    //             }
-    //         }
-    //         else {
-    //             // If no session, redirect to login
-    //             window.location.href = '/login';
-    //         }
+    //         const result = await ChatroomAPI.fetchSave(msgId, newInput);
+    //         return result.updated;
+    //     } catch (error) {
+    //         console.error(error);
+    //         return false;
     //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
-    // const handleCancel = async function (msgId, editedInput, originalInput){
-    //     try {
-    //         if (await checkSession(msgId)) {
-    //             ChatroomUIModule.cancelMsg(msgId, editedInput, originalInput);
-    //         }
-    //         else {
-    //             // no session, redirect to login
-    //             window.location.href = '/login';
-    //         }
-    //     }
-    //     catch (error) {
-    //         console.log(error);
-    //     }
-    // }
+    // };
 
     const handleDelete = async function (msgId){
 
@@ -208,7 +156,7 @@ const Manager = (function (){
         handleEdit,
         handleDelete,
         handleCancel,
-        handleSave
+        initiateMessageSave
     }
 
 })();
@@ -224,7 +172,7 @@ const ChatroomAPI = (function() {
             });
 
             const validResponse = await status(response);
-            return await response.json();
+            return await validResponse.json();
         }
         catch (error) {
             console.log(`Error fetching messages from database: ${error}`);
@@ -241,7 +189,7 @@ const ChatroomAPI = (function() {
             });
 
             const validResponse = await status(response);
-            return await response.json();
+            return await validResponse.json();
         }
         catch (error) {
             console.log(`Error fetching delete from database: ${error}`);
@@ -275,7 +223,7 @@ const ChatroomAPI = (function() {
             });
 
             const validateResponse = await status(response);
-            return await response.json();
+            return await validateResponse.json();
         }
         catch (error) {
             console.log(`Error fetching save from database: ${error}`);
@@ -498,6 +446,20 @@ const ChatroomUIModule = (function() {
         }
     };
 
+    const getEditingMessageData = function() {
+
+        const modalInput = document.getElementById('editMessageInput');
+        const msgId = modalInput.getAttribute('data-editing-msg-id');
+        const newText = modalInput.value.trim();
+
+        if (!newText) {
+            modalInput.reportValidity();
+            return null;
+        }
+
+        return {msgId, newText};
+    };
+
     const updateMessageInUI = function(messageId, newText) {
         const messageElement = document.querySelector(`.card-text[data-message-id="${messageId}"]`);
         if (messageElement) {
@@ -505,7 +467,6 @@ const ChatroomUIModule = (function() {
         }
     };
 
-    // Private UI helper functions
     const openModal = function() {
         const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
         modal.show();
@@ -523,13 +484,22 @@ const ChatroomUIModule = (function() {
         chatMessagesDiv.innerHTML = '';
     };
 
+    const clearEditingState = function() {
+        document.getElementById('editMessageInput').value = '';
+    };
+
+
 
     return {
         displayMessages,
         editMsg,
         cancelMsg,
         saveMsg,
-        clearMessages
+        clearMessages,
+        getEditingMessageData,
+        closeModal,
+        updateMessageInUI,
+        clearEditingState
     };
 
 })();
