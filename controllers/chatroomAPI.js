@@ -1,6 +1,8 @@
 
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
+const Sequelize = require("sequelize");
+const createError = require("http-errors");
 
 exports.existingMessages = async (req, res, next) => {
     const lastUpdate = new Date(req.body.lastUpdate);
@@ -117,8 +119,22 @@ exports.saveMsg = async (req, res, next) => {
         else {
             res.json({ updated: false });
         }
-    } catch (error) {
-        console.error('Error updating message:', error);
-        return res.status(500).json({ authenticated: false });
+    }
+    catch (err) {
+        // Handle validation errors
+        if (err instanceof Sequelize.ValidationError) {
+            req.flash('msg', `Invalid input, message cannot be empty`);
+            return res.status(400);
+        }
+        // Handle database errors
+        else if (err instanceof Sequelize.DatabaseError) {
+            req.flash('msg', `A database error occurred, please try again later.`);
+            return res.status(400);
+        }
+        // Handle unexpected errors
+        else {
+            // Pass the error to the central error-handling middleware
+            return next(createError(500, `Unexpected error: ${err.message}`));
+        }
     }
 };

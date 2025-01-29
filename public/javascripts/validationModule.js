@@ -14,8 +14,7 @@ function validateName(name) {
 
 // Validate Password (8-32 characters, at least one letter and one number)
 function validatePassword(password) {
-    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,32}$/;
-    return regex.test(password);
+    return validateLength(password, 3,32);
 }
 
 // Validate Length (between min and max)

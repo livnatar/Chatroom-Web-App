@@ -39,7 +39,7 @@ exports.postAccountCreated = async (req, res, next) => {
     catch (err) {
         // Handle validation errors
         if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input: ${err.message}`);
+            req.flash('msg', `Invalid input (${err.message})`);
             res.redirect('/register');
         }
         // Handle unique constraint errors
@@ -89,7 +89,7 @@ exports.postCreatePassword = async (req, res, next) => {
     }
     catch (err) {
         if (err instanceof Sequelize.DatabaseError) {
-            req.flash('msg', `Database error: ${err.message}`);
+            req.flash('msg', `A database error occurred, please try again later.`);
             res.redirect('/register');
         }
         // Handle unexpected errors

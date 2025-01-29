@@ -2,7 +2,8 @@
 const createError = require('http-errors');
 const {Message} = require("../models/message");
 const {User} = require("../models/user");
-const {Op, Sequelize} = require("sequelize");
+const {Op} = require("sequelize");
+const Sequelize = require("sequelize");
 
 
 exports.getSearchPage = (req, res, next) => {
@@ -61,7 +62,7 @@ exports.sendMessage = async (req, res, next) => {
     catch (err) {
         // Handle validation errors
         if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input: ${err.message}`);
+            req.flash('msg', `Invalid input, message cannot be empty`);
             res.redirect('/chatroom');
         }
         // Handle database errors
@@ -72,7 +73,7 @@ exports.sendMessage = async (req, res, next) => {
         // Handle unexpected errors
         else {
             // Pass the error to the central error-handling middleware
-            return next(createError(500, `Unexpected error: ${err.message}`));
+            return next(createError(500, `Unexpected error, ${err.message}`));
         }
     }
 }

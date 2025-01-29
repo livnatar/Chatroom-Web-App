@@ -10,7 +10,8 @@ const User = sequelize.define('User', {
         allowNull: false,
         validate: {
             isAlpha: true,
-            len:[3,32]
+            len:[3,32],
+            notEmpty: true
         }
     },
     lastName: {
@@ -18,7 +19,8 @@ const User = sequelize.define('User', {
         allowNull: false,
         validate: {
             isAlpha: true,
-            len:[3,32]
+            len:[3,32],
+            notEmpty: true
         }
     },
     email: {
@@ -27,13 +29,15 @@ const User = sequelize.define('User', {
         allowNull: false,
         validate: {
             isEmail: true,
+            notEmpty: true
         }
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            is: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,32}$/i
+            len:[3,32],
+            notEmpty: true
         }
     }
 }, {

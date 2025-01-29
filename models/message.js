@@ -7,10 +7,13 @@ const Message = sequelize.define('Message',
     {
     user_id: DataTypes.INTEGER,
     input: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+            notEmpty: true
+        }
     }
-}, {
+    }, {
     sequelize,
     paranoid: true,
 },

@@ -311,9 +311,10 @@ const ChatroomAPI = (function() {
         if (response.status >= 200 && response.status < 300) {
             return response
         }
+        else if (response.status === 400){ // for input validation failure, bad request
+            window.location.href = '/chatroom';
+        }
         else if (response.status >= 401) {  // the session is expired
-
-            // no session, redirect to login
             window.location.href = '/login';
         }
         else
