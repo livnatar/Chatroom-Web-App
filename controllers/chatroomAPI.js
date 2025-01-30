@@ -2,7 +2,6 @@
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
 const Sequelize = require("sequelize");
-const createError = require("http-errors");
 
 exports.existingMessages = async (req, res, next) => {
     const lastUpdate = new Date(req.body.lastUpdate);
@@ -101,22 +100,11 @@ exports.saveMsg = async (req, res, next) => {
         const messageId = req.body.msgId;
         const newMsg = req.body.newInput;
 
-        // const message = await Message.findOne({
-        //     where: {id: messageId},
-        //     attributes:['user_id', 'input']});
-        //
-        // // Check if message exists and if user_id matches the session userId
-        // if (message && req.session.userId && message.user_id === req.session.userId) {
-        //     // Update the message if user_id matches
         await Message.update(
             { input: newMsg },
             { where: { id: messageId } });
 
         res.json({ updated: true, newInput: newMsg });
-        // }
-        // else {
-        //     res.json({ updated: false });
-        // }
     }
     catch (err) {
         // Handle validation errors
@@ -132,7 +120,7 @@ exports.saveMsg = async (req, res, next) => {
         // Handle unexpected errors
         else {
             // Pass the error to the central error-handling middleware
-            return next(createError(500, `Unexpected error: ${err.message}`));
+            return res.status(500);
         }
     }
 };
