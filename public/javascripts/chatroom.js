@@ -287,69 +287,199 @@ const ChatroomUIModule = (function() {
 
     let currentEditingMsgId = null; // To keep track of the message being edited
 
-    const displayMessages = function (messages) {
+    // const displayMessages = function (messages) {
+    //
+    //     const chatMessagesDiv = document.getElementById('chatMessages');
+    //
+    //     // Clear existing messages
+    //     chatMessagesDiv.innerHTML = '';
+    //
+    //     // Loop through each message and create a Bootstrap card for it
+    //     messages.forEach(msg => {
+    //         const messageDiv = document.createElement('div');
+    //         messageDiv.classList.add('d-flex', 'mb-3');
+    //         messageDiv.classList.add(msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start');
+    //
+    //         messageDiv.innerHTML = `
+    //             <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
+    //                 <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
+    //                     <div class="card-body position-relative p-2" style="min-height: 100px;">
+    //                         <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+    //                             <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
+    //                             <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
+    //                                 ${new Intl.DateTimeFormat('en-US', {
+    //                     hour: 'numeric',
+    //                     minute: 'numeric',
+    //                     hour12: true
+    //                 }).format(new Date(msg.timestamp))}
+    //                             </small>
+    //                         </div>
+    //                         <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
+    //                         ${msg.isOwnedByUser ? `
+    //                             <div class="position-absolute bottom-0 end-0 m-2">
+    //                                 <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}">
+    //                                     Edit
+    //                                 </button>
+    //                                 <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
+    //                                     Delete
+    //                                 </button>
+    //                             </div>
+    //                         ` : ''}
+    //                     </div>
+    //                 </div>
+    //                 <small class="text-muted d-block mt-1">
+    //                     ${new Intl.DateTimeFormat('en-US', {
+    //                     weekday: 'short',
+    //                     month: 'short',
+    //                     day: 'numeric'
+    //                 }).format(new Date(msg.timestamp))}
+    //                 </small>
+    //             </div>
+    //         `;
+    //
+    //         chatMessagesDiv.appendChild(messageDiv);
+    //
+    //         const editButton = messageDiv.querySelector('.edit-button');
+    //         if (editButton) {
+    //             editButton.addEventListener('click', () => Manager.handleEdit(msg.id, msg.message));
+    //         }
+    //
+    //         const deleteButton = messageDiv.querySelector('.delete-button');
+    //         if (deleteButton) {
+    //             deleteButton.addEventListener('click', () => Manager.handleDelete(msg.id));
+    //         }
+    //     });
+    //
+    // };
 
-        const chatMessagesDiv = document.getElementById('chatMessages');
+    // const displayMessages = function (messages) {
+    //     const chatMessagesDiv = document.getElementById('chatMessages');
+    //
+    //     chatMessagesDiv.innerHTML = messages.map(msg => `
+    //     <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
+    //         <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
+    //             <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
+    //                 <div class="card-body position-relative p-2" style="min-height: 100px;">
+    //                     <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+    //                         <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
+    //                         <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
+    //                             ${new Intl.DateTimeFormat('en-US', {
+    //         hour: 'numeric',
+    //         minute: 'numeric',
+    //         hour12: true
+    //     }).format(new Date(msg.timestamp))}
+    //                         </small>
+    //                     </div>
+    //                     <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
+    //                     ${msg.isOwnedByUser ? `
+    //                         <div class="position-absolute bottom-0 end-0 m-2">
+    //                             <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
+    //                                 Edit
+    //                             </button>
+    //                             <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
+    //                                 Delete
+    //                             </button>
+    //                         </div>
+    //                     ` : ''}
+    //                 </div>
+    //             </div>
+    //             <small class="text-muted d-block mt-1">
+    //                 ${new Intl.DateTimeFormat('en-US', {
+    //         weekday: 'short',
+    //         month: 'short',
+    //         day: 'numeric'
+    //     }).format(new Date(msg.timestamp))}
+    //             </small>
+    //         </div>
+    //     </div>
+    // `).join('');
+    //
+    //     chatMessagesDiv.addEventListener('click', async (event) => {
+    //         const target = event.target;
+    //         const messageId = target.dataset.messageId;
+    //
+    //         try {
+    //             if (target.classList.contains('edit-button')) {
+    //                 const message = target.dataset.message;
+    //                 await Manager.handleEdit(messageId, message);
+    //             }
+    //             else if (target.classList.contains('delete-button')) {
+    //                 await Manager.handleDelete(messageId);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error handling message action:', error);
+    //         }
+    //     });
+    // };
 
-        // Clear existing messages
-        chatMessagesDiv.innerHTML = '';
-
-        // Loop through each message and create a Bootstrap card for it
-        messages.forEach(msg => {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('d-flex', 'mb-3');
-            messageDiv.classList.add(msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start');
-
-            messageDiv.innerHTML = `
-                <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
-                    <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
-                        <div class="card-body position-relative p-2" style="min-height: 100px;">
-                            <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
-                                <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
-                                <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
-                                    ${new Intl.DateTimeFormat('en-US', {
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        hour12: true
-                    }).format(new Date(msg.timestamp))}
-                                </small>
-                            </div>
-                            <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
-                            ${msg.isOwnedByUser ? `
-                                <div class="position-absolute bottom-0 end-0 m-2">
-                                    <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}">
-                                        Edit
-                                    </button>
-                                    <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
-                                        Delete
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
+    const createMessageHTML = (msg) => `
+    <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
+        <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
+            <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
+                <div class="card-body position-relative p-2" style="min-height: 100px;">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+                        <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
+                        <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
+                            ${new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(new Date(msg.timestamp))}
+                        </small>
                     </div>
-                    <small class="text-muted d-block mt-1">
-                        ${new Intl.DateTimeFormat('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric'
-                    }).format(new Date(msg.timestamp))}
-                    </small>
+                    <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
+                    ${msg.isOwnedByUser ? `
+                        <div class="position-absolute bottom-0 end-0 m-2">
+                            <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
+                                Delete
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
-            `;
+            </div>
+            <small class="text-muted d-block mt-1">
+                ${new Intl.DateTimeFormat('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+    }).format(new Date(msg.timestamp))}
+            </small>
+        </div>
+    </div>
+`;
 
-            chatMessagesDiv.appendChild(messageDiv);
+    const handleMessagesEventListener = async (event) => {
+        const target = event.target;
+        const messageId = target.dataset.messageId;
 
-            const editButton = messageDiv.querySelector('.edit-button');
-            if (editButton) {
-                editButton.addEventListener('click', () => Manager.handleEdit(msg.id, msg.message));
+        try {
+            if (target.classList.contains('edit-button')) {
+                const message = target.dataset.message;
+                await Manager.handleEdit(messageId, message);
             }
-
-            const deleteButton = messageDiv.querySelector('.delete-button');
-            if (deleteButton) {
-                deleteButton.addEventListener('click', () => Manager.handleDelete(msg.id));
+            else if (target.classList.contains('delete-button')) {
+                await Manager.handleDelete(messageId);
             }
-        });
+        } catch (error) {
+            console.error('Error handling message action:', error);
+        }
+    };
 
+    const displayMessages = function (messages) {
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        chatMessagesDiv.innerHTML = messages.map(createMessageHTML).join('');
+        chatMessagesDiv.addEventListener('click', handleMessagesEventListener);
+    };
+
+    // For when you need to append a single new message:
+    const appendNewMessage = function(msg, chatMessagesDiv) {
+        const messageHTML = createMessageHTML(msg);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = messageHTML;
+        chatMessagesDiv.appendChild(tempDiv.firstElementChild);
     };
 
     const editMsg = function (msgId, currentMessageText) {
