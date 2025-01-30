@@ -10,7 +10,7 @@ router.use(checkIfSessionExists);
 
 router.get('/search', chatroomPagesController.getSearchPage);
 
-router.post('/sendMessage', chatroomPagesController.sendMessage);
+// router.post('/sendMessage', chatroomPagesController.sendMessage);
 
 router.post('/findMessages', chatroomPagesController.postFindMessages);
 

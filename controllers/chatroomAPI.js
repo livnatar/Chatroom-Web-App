@@ -2,6 +2,7 @@
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
 const Sequelize = require("sequelize");
+const createError = require("http-errors");
 
 exports.existingMessages = async (req, res, next) => {
     const lastUpdate = new Date(req.body.lastUpdate);
@@ -105,6 +106,59 @@ exports.saveMsg = async (req, res, next) => {
             { where: { id: messageId } });
 
         res.json({ updated: true, newInput: newMsg });
+    }
+    catch (err) {
+        // Handle validation errors
+        if (err instanceof Sequelize.ValidationError) {
+            req.flash('msg', `Invalid input, message cannot be empty`);
+            return res.status(400);
+        }
+        // Handle database errors
+        else if (err instanceof Sequelize.DatabaseError) {
+            req.flash('msg', `A database error occurred, please try again later.`);
+            return res.status(400);
+        }
+        // Handle unexpected errors
+        else {
+            // Pass the error to the central error-handling middleware
+            return res.status(500);
+        }
+    }
+};
+
+exports.sendMsg = async (req, res, next) => {
+    try {
+        const { message } = req.body;
+        const currentUserId = req.session.userId;
+
+        // Create the message
+        const newMsg = await Message.create({
+            user_id: currentUserId,
+            input: message
+        });
+
+        // Fetch the created message with user details
+        const messageWithUser = await Message.findOne({
+            where: { id: newMsg.id },
+            include: [{
+                model: User,
+                attributes: ['firstName', 'lastName']
+            }]
+        });
+
+        // Format the response
+        const formattedMessage = {
+            id: messageWithUser.id,
+            username: `${messageWithUser.User.firstName} ${messageWithUser.User.lastName}`,
+            message: messageWithUser.input,
+            timestamp: messageWithUser.createdAt,
+            isOwnedByUser: messageWithUser.user_id === currentUserId
+        };
+
+        res.json({
+            added: true,
+            message: formattedMessage
+        });
     }
     catch (err) {
         // Handle validation errors

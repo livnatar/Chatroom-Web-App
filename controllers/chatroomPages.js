@@ -50,30 +50,30 @@ exports.postFindMessages = async (req, res, next) => {
     }
 };
 
-exports.sendMessage = async (req, res, next) => {
-
-    try {
-        const { message } = req.body;
-
-        const newMsg = await Message.create({user_id:req.session.userId, input:message});
-        res.redirect('/chatroom');
-
-    }
-    catch (err) {
-        // Handle validation errors
-        if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input, message cannot be empty`);
-            res.redirect('/chatroom');
-        }
-        // Handle database errors
-        else if (err instanceof Sequelize.DatabaseError) {
-            req.flash('msg', `Database error: ${err.message}`);
-            res.redirect('/chatroom');
-        }
-        // Handle unexpected errors
-        else {
-            // Pass the error to the central error-handling middleware
-            return next(createError(500, `Unexpected error, ${err.message}`));
-        }
-    }
-}
+// exports.sendMessage = async (req, res, next) => {
+//
+//     try {
+//         const { message } = req.body;
+//
+//         const newMsg = await Message.create({user_id:req.session.userId, input:message});
+//         res.redirect('/chatroom');
+//
+//     }
+//     catch (err) {
+//         // Handle validation errors
+//         if (err instanceof Sequelize.ValidationError) {
+//             req.flash('msg', `Invalid input, message cannot be empty`);
+//             res.redirect('/chatroom');
+//         }
+//         // Handle database errors
+//         else if (err instanceof Sequelize.DatabaseError) {
+//             req.flash('msg', `Database error: ${err.message}`);
+//             res.redirect('/chatroom');
+//         }
+//         // Handle unexpected errors
+//         else {
+//             // Pass the error to the central error-handling middleware
+//             return next(createError(500, `Unexpected error, ${err.message}`));
+//         }
+//     }
+// }

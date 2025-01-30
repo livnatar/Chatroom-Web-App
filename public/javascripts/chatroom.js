@@ -15,6 +15,8 @@ const POLLING = 10000 ;
         document.getElementById('saveEditButton').addEventListener('click', Manager.initiateMessageSave);
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', Manager.handleCancel); // Handles modal close
 
+        document.getElementById('sendMessageBtn').addEventListener('click', Manager.handleSendNewMessage);
+
         // display messages every 10 seconds
         setInterval(Manager.fetchAndDisplayMessages, POLLING);
 
@@ -131,6 +133,32 @@ const Manager = (function (){
     //     }
     // };
 
+    const handleSendNewMessage = async function(){
+
+        // Get message data from the UI Module
+        const message = ChatroomUIModule.getMessageContent();
+        if (!message) {
+            return;
+        }
+
+        try {
+            // Call API with the data
+            const result = await ChatroomAPI.fetchNewMessage(message);
+
+
+            // Update UI based on result
+            if (result.added) {
+                ChatroomUIModule.appendNewMessage(result.message);
+
+                // Clear the input field
+                ChatroomUIModule.clearMsgBox();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
     const handleDelete = async function (msgId){
 
         console.log(`Handling delete for message ID: ${msgId}`);
@@ -157,12 +185,29 @@ const Manager = (function (){
         handleEdit,
         handleDelete,
         handleCancel,
-        initiateMessageSave
+        initiateMessageSave,
+        handleSendNewMessage
     }
 
 })();
 
 const ChatroomAPI = (function() {
+
+    const fetchNewMessage = async function(message) {
+        try {
+            const response = await fetch("/api/sendMessage", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message }),
+            });
+
+            const validResponse = await status(response);
+            return await validResponse.json();
+        }
+        catch (error) {
+            console.log(`Error fetching messages from database: ${error}`);
+        }
+    };
 
     const fetchMessages = async function (lastUpdate) {
         try {
@@ -275,6 +320,7 @@ const ChatroomAPI = (function() {
 
 
     return {
+        fetchNewMessage,
         fetchMessages,
         fetchDelete,
         fetchSave,
@@ -461,7 +507,7 @@ const ChatroomUIModule = (function() {
                 const message = target.dataset.message;
                 await Manager.handleEdit(messageId, message);
             }
-            else if (target.classList.contains('delete-button')) {
+            if (target.classList.contains('delete-button')) {
                 await Manager.handleDelete(messageId);
             }
         } catch (error) {
@@ -475,12 +521,30 @@ const ChatroomUIModule = (function() {
         chatMessagesDiv.addEventListener('click', handleMessagesEventListener);
     };
 
+    const getMessageContent = function(){
+
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value.trim();
+
+        if (!message) {
+            message.reportValidity();
+            return null;
+        }
+        return message;
+    };
+
+    const clearMsgBox = function() {
+        const messageInput = document.getElementById("message");
+        messageInput.value = '';
+    };
+
     // For when you need to append a single new message:
-    const appendNewMessage = function(msg, chatMessagesDiv) {
+    const appendNewMessage = function(msg) {
+        const chatMessagesDiv = document.getElementById('chatMessages');
         const messageHTML = createMessageHTML(msg);
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = messageHTML;
-        chatMessagesDiv.appendChild(tempDiv.firstElementChild);
+        chatMessagesDiv.appendChild(tempDiv.lastElementChild);
     };
 
     const editMsg = function (msgId, currentMessageText) {
@@ -576,7 +640,10 @@ const ChatroomUIModule = (function() {
         getEditingMessageData,
         closeModal,
         updateMessageInUI,
-        clearEditingState
+        clearEditingState,
+        appendNewMessage,
+        getMessageContent,
+        clearMsgBox
     };
 
 })();

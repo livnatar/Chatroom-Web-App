@@ -25,17 +25,31 @@
     </div>
 
     <!-- Message Input Form -->
+<!--    <div class="row justify-content-center mt-4">-->
+<!--        <div class="col-md-8 col-lg-6">-->
+<!--            <form id="chatForm" method="POST" action="/chatroom/sendMessage" class="card shadow-sm p-4">-->
+<!--                <div class="mb-3">-->
+<!--                    <label for="message" class="form-label">Your Message</label>-->
+<!--                    <textarea id="message" name="message" class="form-control" rows="2" placeholder="Type your message here..." required></textarea>-->
+<!--                </div>-->
+<!--                <div class="d-flex justify-content-end">-->
+<!--                    <button type="submit" class="btn btn-primary">Send</button>-->
+<!--                </div>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+    <!-- Message Input -->
     <div class="row justify-content-center mt-4">
         <div class="col-md-8 col-lg-6">
-            <form id="chatForm" method="POST" action="/chatroom/sendMessage" class="card shadow-sm p-4">
+            <div class="card shadow-sm p-4">
                 <div class="mb-3">
                     <label for="message" class="form-label">Your Message</label>
-                    <textarea id="message" name="message" class="form-control" rows="2" placeholder="Type your message here..." required></textarea>
+                    <textarea id="message" class="form-control" rows="2" placeholder="Type your message here..." required></textarea>
                 </div>
                 <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">Send</button>
+                    <button id="sendMessageBtn" class="btn btn-primary">Send</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
