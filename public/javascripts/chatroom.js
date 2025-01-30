@@ -140,7 +140,8 @@ const Manager = (function (){
 
             if (message.deleted) {
                 console.log("Message successfully deleted");
-                fetchAndDisplayMessages().catch(error => {console.log(error)});
+                ChatroomUIModule.deleteMsg(msgId);
+                //fetchAndDisplayMessages().catch(error => {console.log(error)});
             }
             else {
                 console.log("Failed to delete the message");
@@ -497,6 +498,22 @@ const ChatroomUIModule = (function() {
         currentEditingMsgId = null;
     };
 
+    const deleteMsg = function (msgId) {
+
+        const messageButton = document.querySelector(`[data-message-id="${msgId}"]`);
+
+        if (messageButton) {
+            const messageContainer = messageButton.closest('.message-wrapper');
+            if (messageContainer) {
+                messageContainer.remove(); // Directly removes the element
+                console.log(`Message with ID ${msgId} removed.`);
+            }
+        }
+        else {
+            console.log(`Message with ID ${msgId} not found.`);
+        }
+    }
+
     const getEditingMessageData = function() {
 
         const modalInput = document.getElementById('editMessageInput');
@@ -555,6 +572,7 @@ const ChatroomUIModule = (function() {
         editMsg,
         cancelMsg,
         clearMessages,
+        deleteMsg,
         getEditingMessageData,
         closeModal,
         updateMessageInUI,
