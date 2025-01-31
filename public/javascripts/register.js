@@ -3,16 +3,19 @@
 import { validateForm } from './validationModule.js';
 import { setCookie, getCookie } from './cookieUtils.js';
 
-const REGISTER = 60;
+const COOKIE_EXPIRATION_TIME= 30;
+
 
 (function() {
 
     document.addEventListener('DOMContentLoaded', function () {
 
         const registerForm = document.getElementById("registerForm");
-        // Register form submission
+
         registerForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent form submission to allow validation
+
+            // Prevent form submission to allow validation
+            event.preventDefault();
 
             if (validateForm("registerForm")) {
 
@@ -25,12 +28,17 @@ const REGISTER = 60;
                 const userData = JSON.stringify({ email, firstName, lastName });
 
                 // Save the combined data in a single cookie
-                setCookie('userInfo', userData, REGISTER); // Cookie lasts 30 seconds
+                setCookie('userInfo', userData, COOKIE_EXPIRATION_TIME ); // Cookie lasts 30 seconds
 
-                registerForm.submit(); // Submit the form if validation is successful
+                registerForm.submit(); // Submit the form since validation was successful
             }
         });
 
+
+        /**
+         * This function retrieves user data from a cookie and populates the form inputs with the retrieved values.
+         * It ensures that the data is displayed as long as the cookie exists, even when navigating between pages.
+         */
         function insertDataFromCookie() {
 
             const cookieData = getCookie('userInfo');

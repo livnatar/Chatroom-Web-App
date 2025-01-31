@@ -7,7 +7,8 @@ import { validateForm } from './validationModule.js';
         const createPasswordForm = document.getElementById("createPasswordForm");
 
         createPasswordForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent form submission to allow validation
+            // Prevent form submission to allow validation
+            event.preventDefault();
 
             if (validateForm("createPasswordForm")) {
                 createPasswordForm.submit(); // Submit the form if validation is successful

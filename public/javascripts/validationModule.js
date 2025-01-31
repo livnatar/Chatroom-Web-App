@@ -1,28 +1,62 @@
 
+// ----------------------------------- consts ----------------------------------
+const MIN_LENGTH = 3;
+const MAX_LENGTH = 32;
+const LENGTH_ERROR = 'Input length must range from 3 to 32 characters.';
 
+//---------------------------------- functions ---------------------------------
 
+/**
+ * This function validates whether a given email address is in a proper format.
+ *
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ */
 function validateEmail(email) {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return regex.test(email);
 }
 
-// Validate Name (only a-z characters)
+/**
+ * This function validates whether a given name contains only alphabetical characters (a-z, A-Z).
+ *
+ * @param {string} name - The name to validate.
+ * @returns {boolean} - Returns true if the name contains only letters, otherwise false.
+ */
 function validateName(name) {
     const regex = /^[a-zA-Z]+$/;
     return regex.test(name);
 }
 
-// Validate Password (8-32 characters, at least one letter and one number)
+/**
+ * This function validates whether a given password meets the required length constraints.
+ *
+ * @param {string} password - The password to validate.
+ * @returns {boolean} - Returns true if the password length is within the allowed range, otherwise false.
+ */
 function validatePassword(password) {
-    return validateLength(password, 3,32);
+    return validateLength(password, MIN_LENGTH,MAX_LENGTH);
 }
 
-// Validate Length (between min and max)
+/**
+ * This function checks whether the length of the given input falls within the specified range.
+ *
+ * @param {string} input - The input string to validate.
+ * @param {number} minLength - The minimum allowed length.
+ * @param {number} maxLength - The maximum allowed length.
+ * @returns {boolean} - Returns true if the input length is within the specified range, otherwise false.
+ */
 function validateLength(input, minLength, maxLength) {
     return input.length >= minLength && input.length <= maxLength;
 }
 
-// Validate all form fields and return a result object
+/**
+ * This function validates a form field based on its ID and value, ensuring it meets the required criteria.
+ *
+ * @param {string} fieldId - The ID of the form field being validated.
+ * @param {string} value - The input value to validate.
+ * @returns {{isValid: boolean, message: string}} - An object containing validation status and an error message if invalid.
+ */
 function validateField(fieldId, value) {
     let isValid = true;
     let message = '';
@@ -31,9 +65,9 @@ function validateField(fieldId, value) {
     value = value.trim();
 
     // Apply length validation for all fields
-    if (!validateLength(value, 3, 32)) {
+    if (!validateLength(value, MIN_LENGTH, MAX_LENGTH)) {
         isValid = false;
-        message = 'Input must be between 3 and 32 characters.';
+        message = LENGTH_ERROR;
     }
 
     switch (fieldId) {
@@ -55,7 +89,7 @@ function validateField(fieldId, value) {
         case 'password':
             if (!validatePassword(value)) {
                 isValid = false;
-                message = 'Password must be 8-32 characters, including at least one letter and one number.';
+                message = LENGTH_ERROR;//'Password must be 3-32 characters.';
             }
             break;
 
@@ -74,7 +108,12 @@ function validateField(fieldId, value) {
     return { isValid, message };
 }
 
-// Function to display validation error message
+/**
+ * This function displays a validation error message for a specific input field.
+ *
+ * @param {string} inputId - The ID of the input field to display the error for.
+ * @param {string} message - The error message to display.
+ */
 function showValidationError(inputId, message) {
     const input = document.getElementById(inputId);
     input.classList.add('is-invalid');
@@ -84,7 +123,11 @@ function showValidationError(inputId, message) {
     }
 }
 
-// Function to clear validation error message
+/**
+ * This function clears the validation error message for a specific input field.
+ *
+ * @param {string} inputId - The ID of the input field to clear the error for.
+ */
 function clearValidationError(inputId) {
     const input = document.getElementById(inputId);
     input.classList.remove('is-invalid');
@@ -94,7 +137,12 @@ function clearValidationError(inputId) {
     }
 }
 
-// Validate all fields in the form
+/**
+ * This function validates all fields in the specified form.
+ *
+ * @param {string} formId - The ID of the form to validate.
+ * @returns {boolean} - Returns true if all fields are valid, otherwise false.
+ */
 function validateForm(formId) {
     const form = document.getElementById(formId);
     let valid = true;
@@ -112,5 +160,7 @@ function validateForm(formId) {
 
     return valid;
 }
+
+
 
 export { validateForm };
