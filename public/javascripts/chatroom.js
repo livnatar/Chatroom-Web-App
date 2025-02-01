@@ -509,10 +509,11 @@ const POLLING = 10000 ;
          * @returns {string|null}
          */
         const getMessageContent = function(){
+
             const message = messageInput.value.trim();
             if (!message) {
                 // since message is empty, trigger HTML's require
-                message.reportValidity();
+                messageInput.reportValidity();
                 return null;
             }
             return message;
