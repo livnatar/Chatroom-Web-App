@@ -16,7 +16,7 @@ const apiRouter = require('./routes/chatroomApi');
 const chatroomPagesRouter = require('./routes/chatroomPages');
 const {get404} = require("./controllers/error");
 
-var app = express();
+const app = express();
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));

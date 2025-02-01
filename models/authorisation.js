@@ -1,16 +1,33 @@
 
 
-// Middleware to check if the user is not logged in
+/**
+ * Middleware to check if the user is not logged in.
+ * If the user is logged in, they are redirected to the chatroom.
+ * Otherwise, the request proceeds to the next middleware or route.
+ *
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function to pass control to the next middleware
+ * @returns {*} - Redirects if the user is logged in, otherwise calls `next()`
+ */
 const isNotLoggedIn = (req, res, next) => {
     if (req.session.userId) {
         // If user is logged in, redirect to chatroom
         return res.redirect('/chatroom');
     }
-    next(); // If not logged in, proceed to the next middleware/route
+    next();
 };
 
-
-// Middleware to check if session expired in order to know if we can stay in the chatroom
+/**
+ * Middleware to check if the user's session is still active.
+ * If the session has expired (i.e., no user ID in session), the user is redirected to the login page
+ * with a flash message. Otherwise, the request proceeds to the next middleware or route.
+ *
+ * @param req - Express request object containing session data
+ * @param res - Express response object used for redirection
+ * @param next - Express next function to pass control to the next middleware
+ * @returns {*} - Redirects if the session is expired, otherwise calls `next()`
+ */
 const checkIfSessionExists = (req, res, next) => {
 
     // Check if the user ID is stored in the session
@@ -18,10 +35,20 @@ const checkIfSessionExists = (req, res, next) => {
         req.flash('msg', 'Please log in to access the chatroom');
         return res.redirect('/login');
     }
-    next(); // If not logged in, proceed to the next middleware/route
+    next();
 };
 
-
+/**
+ * Middleware to check if the user's session is still active.
+ * If the session is missing or expired, it sends a 401 Unauthorized response.
+ * If the request is to the root path `/`, it responds with a success message.
+ * Otherwise, it allows the request to proceed to the next middleware or route handler.
+ *
+ * @param req - Express request object containing session data
+ * @param res - Express response object used for sending responses
+ * @param next - Express next function to pass control to the next middleware
+ * @returns {*} - Returns a JSON response for session status or calls `next()`
+ */
 const checkSession = (req, res, next) => {
 
     if (!req.session || !req.session.userId) {
@@ -35,9 +62,7 @@ const checkSession = (req, res, next) => {
         return res.status(200).json({ message: 'Session is valid' });
     }
 
-    next(); // Proceed to the next middleware or route handler
+    next();
 };
-
-
 
 module.exports = {isNotLoggedIn, checkIfSessionExists, checkSession};

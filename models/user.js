@@ -4,6 +4,13 @@ const bcrypt = require('bcrypt');
 const { DataTypes } = require('sequelize');
 const {Message } = require('./message');
 
+/**
+ * User Model Definition
+ *
+ * Represents a user in the system with attributes such as first name, last name, email, and password.
+ * Passwords are hashed before storing in the database.
+ *
+ */
 const User = sequelize.define('User', {
     firstName: {
         type: DataTypes.STRING,
@@ -44,76 +51,28 @@ const User = sequelize.define('User', {
     modelName: 'User',
 });
 
+/**
+ * Hashes the user's password before saving it to the database.
+ */
 User.addHook("beforeCreate", async (user,options) => {
     user.password = await bcrypt.hash(user.password, 12);
 });
 
+/**
+ * Establishes a one-to-many relationship between User and Message.
+ * A user can have multiple messages.
+ */
 User.hasMany(Message, {
     foreignKey: 'user_id'
 });
 
+/**
+ * Establishes a many-to-one relationship between Message and User.
+ * A message belongs to a single user.
+ */
 Message.belongsTo(User, {
     foreignKey: 'user_id'
 });
 
 module.exports = { User, Message };
 
-
-
-// const validation = require("../models/validation");
-//
-// let userList = [];
-//
-// function findIfEmailExists(emailAddress) {
-//     return userList.some(user => user.email === emailAddress);
-// }
-//
-// function findUserByEmail(emailAddress) {
-//     return userList.find(user => user.email === emailAddress);
-// }
-//
-// class User {
-//     constructor(email,password,firstName,lastName, id) {
-//         this.email = email;
-//         this.password = password;
-//         this.firstName = firstName;
-//         this.lastName = lastName;
-//         this.id = id;
-//     }
-//
-//     addUser() {
-//
-//         // check if the email exist in the userList
-//         // we get here if throughout the registration process the email has been already taken
-//         if(findIfEmailExists(this.email)) {
-//             throw new Error("Email already exists, please try a different email");
-//         }
-//
-//         //check validation for each field and throw error
-//         else if(validation.nameValidation(this.firstName) &&
-//                 validation.nameValidation(this.lastName)  &&
-//                 validation.validatePassword(this.password) &&
-//                 validation.emailValidation(this.email)){
-//
-//             userList.push(this);
-//         }
-//         else {
-//            throw new Error("Invalid input")
-//         }
-//     }
-//
-//     checkIfEqualsToPassword(password) {
-//         return this.password === password;
-//     }
-//
-//     static fetchAll() {
-//         return userList;
-//     }
-//
-//     static getLength() {
-//         return userList.length;
-//     }
-//
-// }
-//
-// module.exports = {User, findUserByEmail, findIfEmailExists};
