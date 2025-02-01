@@ -4,16 +4,13 @@ const router = express.Router();
 const chatroomPagesController = require('../controllers/chatroomPages');
 const { checkIfSessionExists } = require('../models/authorisation');
 
-//router.all('/', checkIfSessionExists);
-// Apply middleware to all routes in this router
+// Middleware to check if session expired in order to know if we can stay in the chatroom
 router.use(checkIfSessionExists);
 
+// Handle GET request for search page
 router.get('/search', chatroomPagesController.getSearchPage);
 
-// router.post('/sendMessage', chatroomPagesController.sendMessage);
-
+// Handle POST request for find message in the search page
 router.post('/findMessages', chatroomPagesController.postFindMessages);
-
-//router.get('/findMessages',chatroomPagesController.getFindMessages);
 
 module.exports = router;
