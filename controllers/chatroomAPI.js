@@ -1,9 +1,19 @@
-
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
 const Sequelize = require("sequelize");
-const createError = require("http-errors");
 
+
+/**
+ * Controller function to handle fetching existing messages from the database. It compares the `lastUpdate`
+ * timestamp provided in the request body with the latest message updates or deletions in the database.
+ *
+ * Based on the comparison, it returns the messages and the status (whether they have been updated, deleted, or not changed).
+ *
+ * @param req - The Express request object containing the `lastUpdate` timestamp from the client.
+ * @param res - The Express response object used to send the response with the message status and data.
+ * @param next - The Express next function used for error handling or forwarding the request.
+ * @returns {Promise<*>} - The function returns a promise that resolves with the status and messages or error data.
+ */
 exports.existingMessages = async (req, res, next) => {
     const lastUpdate = new Date(req.body.lastUpdate);
 
@@ -78,6 +88,15 @@ exports.existingMessages = async (req, res, next) => {
     }
 };
 
+/**
+ * Controller function to handle the deletion of a message. It ensures that the message belongs to the currently
+ * authenticated user before attempting to delete it from the database.
+ *
+ * @param req - The Express request object containing the `msgId` for the message to be deleted.
+ * @param res - The Express response object used to send the success or failure status back to the client.
+ * @param next - The Express next function used for error handling or forwarding the request.
+ * @returns {Promise<*>} - The function returns a promise that resolves with the deletion status or an error message.
+ */
 exports.findAndDeleteMsg = async (req, res, next) => {
 
     try {
@@ -96,6 +115,14 @@ exports.findAndDeleteMsg = async (req, res, next) => {
     }
 };
 
+/**
+ * Controller function to update a message's content.
+ *
+ * @param req - The Express request object containing the `msgId` for the message to be updated and `newInput` for the updated message content.
+ * @param res - The Express response object used to send the success or failure status back to the client.
+ * @param next - The Express next function used for error handling or forwarding the request.
+ * @returns {Promise<*>} - The function returns a promise that resolves with the update status or an error message.
+ */
 exports.saveMsg = async (req, res, next) => {
     try{
         const messageId = req.body.msgId;
@@ -108,24 +135,35 @@ exports.saveMsg = async (req, res, next) => {
         res.json({ updated: true, newInput: newMsg });
     }
     catch (err) {
-        // Handle validation errors
-        if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input, message cannot be empty`);
-            return res.status(400);
-        }
-        // Handle database errors
-        else if (err instanceof Sequelize.DatabaseError) {
-            req.flash('msg', `A database error occurred, please try again later.`);
-            return res.status(400);
-        }
-        // Handle unexpected errors
-        else {
-            // Pass the error to the central error-handling middleware
-            return res.status(500);
-        }
+        // Use the centralized error handler
+        return handleError(err, req, res);
+
+        // // Handle validation errors
+        // if (err instanceof Sequelize.ValidationError) {
+        //     req.flash('msg', `Invalid input, message cannot be empty`);
+        //     return res.status(400);
+        // }
+        // // Handle database errors
+        // else if (err instanceof Sequelize.DatabaseError) {
+        //     req.flash('msg', `A database error occurred, please try again later.`);
+        //     return res.status(400);
+        // }
+        // // Handle unexpected errors
+        // else {
+        //     // Pass the error to the central error-handling middleware
+        //     return res.status(500);
+        // }
     }
 };
 
+/**
+ * Controller function to handle sending a new message.
+ *
+ * @param req - The Express request object containing the message data to be sent.
+ * @param res - The Express response object used to send the response back to the client.
+ * @param next - The Express next function used for error handling or forwarding the request.
+ * @returns {Promise<*>} - The function returns a promise that resolves with the status of the message send or an error message.
+ */
 exports.sendMsg = async (req, res, next) => {
     try {
         const { message } = req.body;
@@ -161,20 +199,53 @@ exports.sendMsg = async (req, res, next) => {
         });
     }
     catch (err) {
-        // Handle validation errors
-        if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input, message cannot be empty`);
-            return res.status(400);
-        }
-        // Handle database errors
-        else if (err instanceof Sequelize.DatabaseError) {
-            req.flash('msg', `A database error occurred, please try again later.`);
-            return res.status(400);
-        }
-        // Handle unexpected errors
-        else {
-            // Pass the error to the central error-handling middleware
-            return res.status(500);
-        }
+        // Use the centralized error handler
+        return handleError(err, req, res);
+
+        // // Handle validation errors
+        // if (err instanceof Sequelize.ValidationError) {
+        //     req.flash('msg', `Invalid input, message cannot be empty`);
+        //     return res.status(400);
+        // }
+        // // Handle database errors
+        // else if (err instanceof Sequelize.DatabaseError) {
+        //     req.flash('msg', `A database error occurred, please try again later.`);
+        //     return res.status(400);
+        // }
+        // // Handle unexpected errors
+        // else {
+        //     // Pass the error to the central error-handling middleware
+        //     return res.status(500);
+        // }
     }
 };
+
+/**
+ * Utility function to handle errors in a standardized way.
+ * It checks the type of error and sends an appropriate response to the client.
+ * Also, it uses flash messages to provide feedback to the user.
+ *
+ * @param err - The error object that was thrown.
+ * @param req - The request object from the client, used to send flash messages.
+ * @param res - The response object to send the error response to the client.
+ * @returns {*} - The response object with the appropriate status code.
+ */
+function handleError(err, req, res) {
+    // Handle validation errors
+    if (err instanceof Sequelize.ValidationError) {
+        req.flash('msg', 'Invalid input, message cannot be empty');
+        return res.status(400);
+    }
+
+    // Handle database errors
+    else if (err instanceof Sequelize.DatabaseError) {
+        req.flash('msg', 'A database error occurred, please try again later.');
+        return res.status(400);
+    }
+
+    // Handle unexpected errors
+    else {
+        console.error('Unexpected error:', err);
+        return res.status(500);
+    }
+}

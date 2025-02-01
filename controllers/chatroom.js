@@ -1,9 +1,18 @@
-
 const {User} = require("../models/user");
 const bcrypt = require("bcrypt");
 
-
+/**
+ * Controller function to handle the login process for a user. It checks the email and password
+ * provided by the user, compares the password with the stored hash, and logs the user in if
+ * the credentials are valid. If the login fails, an error message is shown.
+ *
+ * @param req - Express request object, containing the user's email and password
+ * @param res - Express response object used to redirect the user or render error messages
+ * @param next - Express next function, used for error handling
+ * @returns {Promise<*>} - The function returns a promise that resolves once the user is logged in or an error is handled
+ */
 exports.postChatroom = async (req, res, next) => {
+
     let { emailAddress, password } = req.body;
 
     // Trim whitespace from email and password
@@ -42,6 +51,16 @@ exports.postChatroom = async (req, res, next) => {
     }
 };
 
+/**
+ * Controller function to handle the rendering of the chatroom page. It retrieves the logged-in user's information,
+ * such as their first name, and passes it to the view to personalize the chatroom. It also handles any messages
+ * to be displayed on the chatroom page.
+ *
+ * @param req - The Express request object containing session data for the logged-in user
+ * @param res - The Express response object used to render the chatroom page
+ * @param next - The Express next function, used for error handling or forwarding the request
+ * @returns {Promise<void>} - The function returns a promise, which resolves once the chatroom page is rendered
+ */
 exports.getChatroom = async (req, res, next) => {
 
     const messages = res.locals.messages;

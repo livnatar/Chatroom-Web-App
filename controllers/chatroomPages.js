@@ -3,9 +3,15 @@ const createError = require('http-errors');
 const {Message} = require("../models/message");
 const {User} = require("../models/user");
 const {Op} = require("sequelize");
-const Sequelize = require("sequelize");
 
-
+/**
+ * Controller function to handle rendering the search page. It retrieves
+ * and passes the search results and the search query to the view for display.
+ *
+ * @param req - Express request object, typically contains query parameters (e.g., search query)
+ * @param res - Express response object used to render the search page with data
+ * @param next - Express next function, passed for consistency (not used here)
+ */
 exports.getSearchPage = (req, res, next) => {
     res.render('searchPage', {
         messages: res.locals.foundMessages,
@@ -13,6 +19,16 @@ exports.getSearchPage = (req, res, next) => {
     });
 };
 
+/**
+ * Controller function to handle searching for messages based on a query. It retrieves
+ * messages that match the query, includes user information, and redirects the user
+ * to the search results page.
+ *
+ * @param req - Express request object, containing the search query from the request body
+ * @param res - Express response object used to redirect the user to the search results page
+ * @param next - Express next function, used to pass errors to the error handler
+ * @returns {Promise<void>} - The function returns a promise indicating the search operation
+ */
 exports.postFindMessages = async (req, res, next) => {
     try {
         const query = req.body.query || '';
@@ -46,34 +62,8 @@ exports.postFindMessages = async (req, res, next) => {
 
     } catch (err) {
         console.error('Search Error:', err);
+        // Create and pass an error to the next middleware
         next(createError(500, `Search error: ${err.message}`));
     }
 };
 
-// exports.sendMessage = async (req, res, next) => {
-//
-//     try {
-//         const { message } = req.body;
-//
-//         const newMsg = await Message.create({user_id:req.session.userId, input:message});
-//         res.redirect('/chatroom');
-//
-//     }
-//     catch (err) {
-//         // Handle validation errors
-//         if (err instanceof Sequelize.ValidationError) {
-//             req.flash('msg', `Invalid input, message cannot be empty`);
-//             res.redirect('/chatroom');
-//         }
-//         // Handle database errors
-//         else if (err instanceof Sequelize.DatabaseError) {
-//             req.flash('msg', `Database error: ${err.message}`);
-//             res.redirect('/chatroom');
-//         }
-//         // Handle unexpected errors
-//         else {
-//             // Pass the error to the central error-handling middleware
-//             return next(createError(500, `Unexpected error, ${err.message}`));
-//         }
-//     }
-// }
