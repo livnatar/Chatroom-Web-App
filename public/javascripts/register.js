@@ -3,7 +3,10 @@
 import { validateForm } from './validationModule.js';
 import { setCookie, getCookie } from './cookieUtils.js';
 
+// ----------------------------------- consts ----------------------------------
 const COOKIE_EXPIRATION_TIME= 30;
+
+//------------------------------------------------------------------------------
 
 
 (function() {

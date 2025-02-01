@@ -89,7 +89,7 @@ function validateField(fieldId, value) {
         case 'password':
             if (!validatePassword(value)) {
                 isValid = false;
-                message = LENGTH_ERROR;//'Password must be 3-32 characters.';
+                message = LENGTH_ERROR;
             }
             break;
 

@@ -31,7 +31,14 @@ const POLLING = 10000 ;
      * The `ManagerModule` module provides functions for handling message-related operations such as sending, editing, deleting, and fetching messages.
      * It interacts with the `ChatroomAPI` to perform actions on the server, and with the `ChatroomUIModule` to update the user interface accordingly.
      *
-     * @type {{handleSendNewMessage: ((function(): Promise<void>)|*), fetchAndDisplayMessages: ((function(): Promise<void>)|*), handleCancel: ((function(): Promise<void>)|*), initiateMessageSave: ((function(): Promise<void>)|*), handleEdit: ((function(string, string): Promise<void>)|*), handleDelete: ((function(string): Promise<void>)|*)}}
+     * @type {{
+     *   handleSendNewMessage: ((function(): Promise<void>)|*),
+     *   fetchAndDisplayMessages: ((function(): Promise<void>)|*),
+     *   handleCancel: ((function(): Promise<void>)|*),
+     *   initiateMessageSave: ((function(): Promise<void>)|*),
+     *   handleEdit: ((function(string, string): Promise<void>)|*),
+     *   handleDelete: ((function(string): Promise<void>)|*)
+     * }}
      */
     const ManagerModule = (function (){
 
@@ -205,8 +212,29 @@ const POLLING = 10000 ;
         }
 })();
 
+    /**
+     * The `ChatroomAPIModule` module provides functions for interacting with the chatroom API.
+     * It handles operations such as sending, fetching, deleting, saving messages, and checking the session status.
+     * The module validates responses from the server and redirects based on different status codes.
+     *
+     * @type {{
+     *   fetchNewMessage: ((function(string): Promise<Object>)|*),
+     *   fetchMessages: ((function(Date|string): Promise<Object>)|*),
+     *   fetchDelete: ((function(string): Promise<Object>)|*),
+     *   fetchSave: ((function(string, string): Promise<Object>)|*),
+     *   fetchCheckSession: ((function(): Promise<Object>)|*),
+     *   status: ((function(Response): (Promise<never>|*))|*)
+     * }}
+     */
     const ChatroomAPIModule = (function() {
 
+        /**
+         * This function handles the process of sending a new message. It sends a request to the server with the message content.
+         * If the request is successful, the server responds with the message status.
+         *
+         * @param {string} message - The message content to be sent.
+         * @returns {Promise<Object>} - A promise resolving to the server response containing message status.
+         */
         const fetchNewMessage = async function(message) {
             try {
                 const response = await fetch("/api/sendMessage", {
@@ -223,6 +251,12 @@ const POLLING = 10000 ;
             }
         };
 
+        /**
+         * Fetches messages from the server based on the last update timestamp.
+         *
+         * @param {Date|string} lastUpdate - The timestamp of the last known update to check for changes.
+         * @returns {Promise<Object>} - A promise resolving to the server response containing message data.
+         */
         const fetchMessages = async function (lastUpdate) {
             try {
                 const response = await fetch('/api/existingMessages', {
@@ -239,6 +273,12 @@ const POLLING = 10000 ;
             }
         };
 
+        /**
+         * Sends a request to delete a specific message from the database.
+         *
+         * @param {string} msgId - The unique identifier of the message to delete.
+         * @returns {Promise<Object>} - A promise resolving to the server response indicating success or failure.
+         */
         const fetchDelete = async function (msgId) {
             try {
                 // find and delete message from database
@@ -256,6 +296,13 @@ const POLLING = 10000 ;
             }
         };
 
+        /**
+         * Sends a request to save a new input for a specific message.
+         *
+         * @param {string} msgId - The unique identifier of the message.
+         * @param {string} newInput - The new input to save for the message.
+         * @returns {Promise<Object>} - A promise resolving to the server response.
+         */
         const fetchSave = async function (msgId, newInput) {
             try {
                 const response = await fetch('/api/save-msg', {
@@ -269,13 +316,19 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.log(`Error fetching save from database: ${error}`);
-                throw error;  // Propagate the error
+                //throw error;  // Propagate the error
             }
         };
 
+        /**
+         * Checks the current session status by making a GET request to the /api endpoint.
+         *
+         * @returns {Promise<Object>} - A promise resolving to the server's response indicating session status.
+         * @throws {Error} - Throws an error if the session check fails.
+         */
         const fetchCheckSession = async function () {
             try {
-                const response = await fetch('/api'); // Calls the new GET /api route
+                const response = await fetch('/api');
                 const validResponse = await status(response);
                 return validResponse.json();
             }
@@ -285,6 +338,12 @@ const POLLING = 10000 ;
             }
         };
 
+        /**
+         * Handles the response status and redirects based on the status code.
+         *
+         * @param {Response} response - The fetch response to be validated.
+         * @returns {Promise<never>|*} - Returns the response if status is valid; otherwise, redirects and rejects.
+         */
         function status(response) {
 
             if (response.status >= 200 && response.status < 300) {
@@ -313,387 +372,305 @@ const POLLING = 10000 ;
         }
     })();
 
+    /**
+     * The `ChatroomUIModule` module provides functions for interacting with the user interface of the chatroom.
+     * It handles operations such as displaying, editing, deleting, and saving messages, along with managing the message input state.
+     * The module also opens and closes modals for editing messages and validates the message content before processing.
+     *
+     * @type {{
+     *    editMsg: editMsg,
+     *    cancelMsg: cancelMsg,
+     *    getEditingMessageData: ((function(): ({currentEditingMsgId: null, newText: string}|null))|*),
+     *    displayMessages: displayMessages,
+     *    updateMessageInUI: updateMessageInUI,
+     *    appendNewMessage: appendNewMessage,
+     *    deleteMsg: deleteMsg,
+     *    clearMsgBox: clearMsgBox,
+     *    closeModal: closeModal,
+     *    clearEditingState: clearEditingState,
+     *    getMessageContent: ((function(): (string|null))|*),
+     *    clearMessages: clearMessages}}
+     */
     const ChatroomUIModule = (function() {
 
-    let currentEditingMsgId = null; // To keep track of the message being edited
+        let currentEditingMsgId = null; // To keep track of the message being edited
+        let messageInput = document.getElementById("message");
+        let chatMessagesDiv = document.getElementById('chatMessages');
+        let modalInput = document.getElementById('editMessageInput');
+        const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
 
-    const createMessageHTML = (msg) => `
-    <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
-        <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
-            <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
-                <div class="card-body position-relative p-2" style="min-height: 100px;">
-                    <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
-                        <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
-                        <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
-                            ${new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(new Date(msg.timestamp))}
-                        </small>
-                    </div>
-                    <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
-                    ${msg.isOwnedByUser ? `
-                        <div class="position-absolute bottom-0 end-0 m-2">
-                            <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
-                                Edit
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
-                                Delete
-                            </button>
+
+        /**
+         * Generates the HTML structure for a message in the chatroom.
+         * The content and appearance of the message vary based on whether the message belongs to the user or another participant.
+         *
+         * @param msg
+         * @returns {`
+         <div class="d-flex mb-3 ${string}">
+         <div class="message-wrapper ${string}" style="max-width: 85%; min-width: 300px;">
+         <div class="card border-0 shadow-sm ${string}">
+         <div class="card-body position-relative p-2" style="min-height: 100px;">
+         <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+         <span class="small ${string}">${*}</span>
+         <small class="${string}">
+         ${string}
+         </small>
+         </div>
+         <p class="mb-4 ${string}">${string}</p>
+         ${string|string}
+         </div>
+         </div>
+         <small class="text-muted d-block mt-1">
+         ${string}
+         </small>
+         </div>
+         </div>
+         `}
+         */
+        const createMessageHTML = (msg) => `
+        <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
+            <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
+                <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
+                    <div class="card-body position-relative p-2" style="min-height: 100px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+                            <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
+                            <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
+                                ${new Intl.DateTimeFormat('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        }).format(new Date(msg.timestamp))}
+                            </small>
                         </div>
-                    ` : ''}
+                        <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
+                        ${msg.isOwnedByUser ? `
+                            <div class="position-absolute bottom-0 end-0 m-2">
+                                <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
+                                    Delete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
+                <small class="text-muted d-block mt-1">
+                    ${new Intl.DateTimeFormat('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        }).format(new Date(msg.timestamp))}
+                </small>
             </div>
-            <small class="text-muted d-block mt-1">
-                ${new Intl.DateTimeFormat('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-    }).format(new Date(msg.timestamp))}
-            </small>
         </div>
-    </div>
-`;
+    `;
 
-    const handleMessagesEventListener = async (event) => {
-        const target = event.target;
-        const messageId = target.dataset.messageId;
+        /**
+         * This function handles the event listener for actions on messages, such as editing and deleting.
+         * It determines if the clicked element is an edit or delete button and triggers the appropriate action (edit or delete).
+         *
+         * @param event
+         * @returns {Promise<void>}
+         */
+        const handleMessagesEventListener = async (event) => {
+            const target = event.target;
+            const messageId = target.dataset.messageId;
 
-        try {
-            if (target.classList.contains('edit-button')) {
-                const message = target.dataset.message;
-                await ManagerModule.handleEdit(messageId, message);
+            try {
+                if (target.classList.contains('edit-button')) {
+                    const message = target.dataset.message;
+                    await ManagerModule.handleEdit(messageId, message);
+                }
+                if (target.classList.contains('delete-button')) {
+                    await ManagerModule.handleDelete(messageId);
+                }
+            } catch (error) {
+                console.error('Error handling message action:', error);
             }
-            if (target.classList.contains('delete-button')) {
-                await ManagerModule.handleDelete(messageId);
+        };
+
+        /**
+         * This function displays the provided messages in the chatroom by rendering their HTML structure and appending them to the chat messages container.
+         * It also adds an event listener to handle message actions like editing or deleting.
+         *
+         * @param messages
+         */
+        const displayMessages = function (messages) {
+            chatMessagesDiv.innerHTML = messages.map(createMessageHTML).join('');
+            chatMessagesDiv.addEventListener('click', handleMessagesEventListener);
+        };
+
+        /**
+         * This function retrieves the message content from the input field, trims any leading or trailing spaces,
+         * and validates that it is not empty. If the content is valid, it returns the message.
+         * If the message is empty, it triggers the HTML input's `required` validity check and returns `null`.
+         *
+         * @returns {string|null}
+         */
+        const getMessageContent = function(){
+            const message = messageInput.value.trim();
+            if (!message) {
+                // since message is empty, trigger HTML's require
+                message.reportValidity();
+                return null;
             }
-        } catch (error) {
-            console.error('Error handling message action:', error);
-        }
-    };
+            return message;
+        };
 
-    const displayMessages = function (messages) {
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        chatMessagesDiv.innerHTML = messages.map(createMessageHTML).join('');
-        chatMessagesDiv.addEventListener('click', handleMessagesEventListener);
-    };
+        /**
+         * This function clears the message input field by setting its value to an empty string.
+         * It effectively resets the message box, allowing the user to input a new message.
+         */
+        const clearMsgBox = function() {
+            messageInput.value = '';
+        };
 
-    const getMessageContent = function(){
+        /**
+         * This function appends a single new message to the chat messages container by creating
+         * its HTML structure and appending it to the DOM.
+         *
+         * @param msg
+         */
+        const appendNewMessage = function(msg) {
+            const messageHTML = createMessageHTML(msg);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = messageHTML;
+            chatMessagesDiv.appendChild(tempDiv.lastElementChild);
+        };
 
-        const messageInput = document.getElementById("message");
-        const message = messageInput.value.trim();
+        /**
+         * This function opens a modal to allow the user to edit an existing message. It pre-fills the modal input field
+         * with the current content of the message.
+         *
+         * @param msgId
+         * @param currentMessageText
+         */
+        const editMsg = function (msgId, currentMessageText) {
+            currentEditingMsgId = msgId; // Track the message being edited
+            modalInput.value = currentMessageText; // Pre-fill the modal with the current message
 
-        if (!message) {
-            message.reportValidity();
-            return null;
-        }
-        return message;
-    };
+            // Show the modal using Bootstrap
+            openModal();
+        };
 
-    const clearMsgBox = function() {
-        const messageInput = document.getElementById("message");
-        messageInput.value = '';
-    };
+        /**
+         * This function cancels the message editing process by closing the modal and resetting
+         * the tracking of the currently edited message.
+         */
+        const cancelMsg = function () {
+            closeModal();
+            currentEditingMsgId = null;
+        };
 
-    // For when you need to append a single new message:
-    const appendNewMessage = function(msg) {
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        const messageHTML = createMessageHTML(msg);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = messageHTML;
-        chatMessagesDiv.appendChild(tempDiv.lastElementChild);
-    };
+        /**
+         * This function deletes a message from the chatroom by removing its HTML element
+         * from the DOM based on the provided message ID.
+         *
+         * @param msgId
+         */
+        const deleteMsg = function (msgId) {
 
-    const editMsg = function (msgId, currentMessageText) {
-
-        currentEditingMsgId = msgId; // Track the message being edited
-        const modalInput = document.getElementById('editMessageInput');
-        modalInput.value = currentMessageText; // Pre-fill the modal with the current message
-
-        // Show the modal using Bootstrap
-        openModal();
-    };
-
-    const cancelMsg = function () {
-        closeModal();
-        currentEditingMsgId = null;
-    };
-
-    const deleteMsg = function (msgId) {
-
-        const messageButton = document.querySelector(`[data-message-id="${msgId}"]`);
-
-        if (messageButton) {
-            const messageContainer = messageButton.closest('.message-wrapper');
-            if (messageContainer) {
-                messageContainer.remove(); // Directly removes the element
-                console.log(`Message with ID ${msgId} removed.`);
-            }
-        }
-        else {
-            console.log(`Message with ID ${msgId} not found.`);
-        }
-    }
-
-    const getEditingMessageData = function() {
-
-        const modalInput = document.getElementById('editMessageInput');
-        const newText = modalInput.value.trim();
-
-        if (!newText) {
-            modalInput.reportValidity();
-            return null;
-        }
-
-        return {currentEditingMsgId, newText};
-    };
-
-    const updateMessageInUI = function(messageId, newText) {
-
-        // Find the edit button first using the message ID
-        const editButton = document.querySelector(`button.edit-button[data-message-id="${messageId}"]`);
-        if (editButton) {
-            // Go up to the card-body and find the message paragraph (p.mb-4)
-            const cardBody = editButton.closest('.card-body');
-            if (cardBody) {
-                const messageElement = cardBody.querySelector('p.mb-4');
-                if (messageElement) {
-                    messageElement.textContent = newText;
+            const message = document.querySelector(`[data-message-id="${msgId}"]`);
+            if (message) {
+                const messageContainer = message.closest('.message-wrapper');
+                if (messageContainer) {
+                    messageContainer.remove(); // Directly removes the element
                 }
             }
+            else {
+                console.log(`Message with ID ${msgId} not found.`);
+            }
         }
-    };
 
-    const openModal = function() {
-        const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
-        modal.show();
-    };
+        /**
+         * This function retrieves the data for the message currently being edited.
+         * It checks if the new text is valid and, if so, returns the ID of the message being edited along with the new text.
+         *
+         * @returns {{currentEditingMsgId: null, newText: string}|null}
+         */
+        const getEditingMessageData = function() {
+            const newText = modalInput.value.trim();
+            if (!newText) {
+                modalInput.reportValidity();
+                return null;
+            }
 
-    const closeModal = function() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editMessageModal'));
-        if (modal) {
+            return {currentEditingMsgId, newText};
+        };
+
+        /**
+         * This function updates the message text in the UI after it has been edited.
+         * It finds the message based on its `messageId` (stored in the edit button's data attribute)
+         * and replaces the message content with the new text.
+         *
+         * @param messageId
+         * @param newText
+         */
+        const updateMessageInUI = function(messageId, newText) {
+
+            // Find the edit button using the message ID stored in its data attribute
+            const editButton = document.querySelector(`button.edit-button[data-message-id="${messageId}"]`);
+            if (editButton) {
+                // Go up to the card-body and find the message paragraph (p.mb-4)
+                const cardBody = editButton.closest('.card-body');
+                if (cardBody) {
+                    const messageElement = cardBody.querySelector('p.mb-4');
+                    if (messageElement) {
+                        messageElement.textContent = newText;  // Update the message text in the UI
+                    }
+                }
+            }
+        };
+
+        /**
+         * This function opens the modal that allows the user to edit a message.
+         * It uses Bootstrap's Modal component to display the modal by targeting the
+         * modal element with the ID `editMessageModal`.
+         */
+        const openModal = function() {
+            modal.show();
+        };
+
+        /**
+         * This function closes the modal that is used for editing a message.
+         * It uses Bootstrap's Modal component to hide the modal.
+         */
+        const closeModal = function() {
             modal.hide();
-        }
-    };
+        };
 
-    const clearMessages = function () {
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        chatMessagesDiv.innerHTML = '';
-    };
+        /**
+         * This function clears all the messages displayed in the chatroom.
+         * It removes all the HTML content inside the chat messages container.
+         */
+        const clearMessages = function () {
+            chatMessagesDiv.innerHTML = '';
+        };
 
-    const clearEditingState = function() {
-        document.getElementById('editMessageInput').value = '';
-        currentEditingMsgId = null;
-    };
+        /**
+         * This function clears the state of the message editing process.
+         * It resets the editing input field and clears the tracking of the message being edited.
+         */
+        const clearEditingState = function() {
+            modalInput.value = '';
+            currentEditingMsgId = null;
+        };
 
-    return {
-        displayMessages,
-        editMsg,
-        cancelMsg,
-        clearMessages,
-        deleteMsg,
-        getEditingMessageData,
-        closeModal,
-        updateMessageInUI,
-        clearEditingState,
-        appendNewMessage,
-        getMessageContent,
-        clearMsgBox
-    };
+        return {
+            displayMessages,
+            editMsg,
+            cancelMsg,
+            clearMessages,
+            deleteMsg,
+            getEditingMessageData,
+            closeModal,
+            updateMessageInUI,
+            clearEditingState,
+            appendNewMessage,
+            getMessageContent,
+            clearMsgBox
+        };
+    })();
+
 })();
-
-})();
-
-
-
-
-// const fetchAndDisplayMessages = async function () {
-// try {
-//     const response = await ChatroomAPI.fetchMessages(lastUpdate);
-//     lastUpdate = new Date();
-//
-//     if (response && Array.isArray(response.messages)) {
-//         if (response.messages.length > 0) {
-//             ChatroomUIModule.displayMessages(response.messages);
-//         }
-//         else {
-//             console.log('No messages to display');
-//         }
-//     }
-//     else if (response.error) {
-//         console.error('Error from server:', response.error);
-//     }
-//     else {
-//         console.log('Unexpected response format:', response);
-//     }
-// }
-// catch (error) {
-//     console.error('Error fetching messages:', error);
-// }
-//}
-
-// const handleSave = async function(msgId, newInput) {
-//     try {
-//         const result = await ChatroomAPI.fetchSave(msgId, newInput);
-//         return result.updated;
-//     } catch (error) {
-//         console.error(error);
-//         return false;
-//     }
-// };
-
-// const fetchSave = async function (msgId,newInput) {
-//     try {
-//         // fetch that finds the message and changes it's content
-//         const response = await fetch('/save-msg', {
-//             method: 'POST',
-//             headers: {'Content-Type': 'application/json'},
-//             body: JSON.stringify({msgId, newInput})
-//         });
-//
-//         const validateResponse = await status(response);
-//         const message = await response.json();
-//     }
-//     catch (error) {
-//         console.log(`Error fetching save from database: ${error}`);
-//     }
-//
-// };
-
-// const fetchCheckSession = async function () {
-//     try {
-//         const response = await fetch('/api/check-session');
-//         const validResponse = await status(response);
-//         return validResponse.json();
-//     }
-//     catch (error) {
-//         console.log(`Error checking session: ${error}`);
-//         throw error;
-//     }
-// };
-
-// const displayMessages = function (messages) {
-//
-//     const chatMessagesDiv = document.getElementById('chatMessages');
-//
-//     // Clear existing messages
-//     chatMessagesDiv.innerHTML = '';
-//
-//     // Loop through each message and create a Bootstrap card for it
-//     messages.forEach(msg => {
-//         const messageDiv = document.createElement('div');
-//         messageDiv.classList.add('d-flex', 'mb-3');
-//         messageDiv.classList.add(msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start');
-//
-//         messageDiv.innerHTML = `
-//             <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
-//                 <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
-//                     <div class="card-body position-relative p-2" style="min-height: 100px;">
-//                         <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
-//                             <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
-//                             <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
-//                                 ${new Intl.DateTimeFormat('en-US', {
-//                     hour: 'numeric',
-//                     minute: 'numeric',
-//                     hour12: true
-//                 }).format(new Date(msg.timestamp))}
-//                             </small>
-//                         </div>
-//                         <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
-//                         ${msg.isOwnedByUser ? `
-//                             <div class="position-absolute bottom-0 end-0 m-2">
-//                                 <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}">
-//                                     Edit
-//                                 </button>
-//                                 <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
-//                                     Delete
-//                                 </button>
-//                             </div>
-//                         ` : ''}
-//                     </div>
-//                 </div>
-//                 <small class="text-muted d-block mt-1">
-//                     ${new Intl.DateTimeFormat('en-US', {
-//                     weekday: 'short',
-//                     month: 'short',
-//                     day: 'numeric'
-//                 }).format(new Date(msg.timestamp))}
-//                 </small>
-//             </div>
-//         `;
-//
-//         chatMessagesDiv.appendChild(messageDiv);
-//
-//         const editButton = messageDiv.querySelector('.edit-button');
-//         if (editButton) {
-//             editButton.addEventListener('click', () => Manager.handleEdit(msg.id, msg.message));
-//         }
-//
-//         const deleteButton = messageDiv.querySelector('.delete-button');
-//         if (deleteButton) {
-//             deleteButton.addEventListener('click', () => Manager.handleDelete(msg.id));
-//         }
-//     });
-//
-// };
-
-// const displayMessages = function (messages) {
-//     const chatMessagesDiv = document.getElementById('chatMessages');
-//
-//     chatMessagesDiv.innerHTML = messages.map(msg => `
-//     <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
-//         <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
-//             <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
-//                 <div class="card-body position-relative p-2" style="min-height: 100px;">
-//                     <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
-//                         <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
-//                         <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
-//                             ${new Intl.DateTimeFormat('en-US', {
-//         hour: 'numeric',
-//         minute: 'numeric',
-//         hour12: true
-//     }).format(new Date(msg.timestamp))}
-//                         </small>
-//                     </div>
-//                     <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
-//                     ${msg.isOwnedByUser ? `
-//                         <div class="position-absolute bottom-0 end-0 m-2">
-//                             <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
-//                                 Edit
-//                             </button>
-//                             <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
-//                                 Delete
-//                             </button>
-//                         </div>
-//                     ` : ''}
-//                 </div>
-//             </div>
-//             <small class="text-muted d-block mt-1">
-//                 ${new Intl.DateTimeFormat('en-US', {
-//         weekday: 'short',
-//         month: 'short',
-//         day: 'numeric'
-//     }).format(new Date(msg.timestamp))}
-//             </small>
-//         </div>
-//     </div>
-// `).join('');
-//
-//     chatMessagesDiv.addEventListener('click', async (event) => {
-//         const target = event.target;
-//         const messageId = target.dataset.messageId;
-//
-//         try {
-//             if (target.classList.contains('edit-button')) {
-//                 const message = target.dataset.message;
-//                 await Manager.handleEdit(messageId, message);
-//             }
-//             else if (target.classList.contains('delete-button')) {
-//                 await Manager.handleDelete(messageId);
-//             }
-//         } catch (error) {
-//             console.error('Error handling message action:', error);
-//         }
-//     });
-// };
