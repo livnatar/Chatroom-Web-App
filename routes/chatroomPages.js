@@ -11,6 +11,6 @@ router.use(checkIfSessionExists);
 router.get('/search', chatroomPagesController.getSearchPage);
 
 // Handle POST request for find message in the search page
-router.post('/findMessages', chatroomPagesController.postFindMessages);
+router.post('/find-messages', chatroomPagesController.postFindMessages);
 
 module.exports = router;

@@ -35,6 +35,7 @@ exports.postChatroom = async (req, res, next) => {
         if (!isMatch) {
             // Password doesn't match
             req.flash('msg', 'Invalid email or password');
+            // add flash to keep the email and password
             return res.redirect('/login');
         }
 

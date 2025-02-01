@@ -8,7 +8,7 @@ const chatroomAPIController = require('../controllers/chatroomAPI');
 router.use(checkSession);
 
 // Handle POST request to get existing messages in the chatroom
-router.post('/existingMessages', chatroomAPIController.existingMessages);
+router.post('/existing-messages', chatroomAPIController.existingMessages);
 
 // Handle POST request to find and delete a specific message in the chatroom
 router.post('/find-and-delete-msg', chatroomAPIController.findAndDeleteMsg);
@@ -17,6 +17,6 @@ router.post('/find-and-delete-msg', chatroomAPIController.findAndDeleteMsg);
 router.post('/save-msg', chatroomAPIController.saveMsg);
 
 // Handle POST request to send a new message in the chatroom
-router.post('/sendMessage',chatroomAPIController.sendMsg);
+router.post('/send-message',chatroomAPIController.sendMsg);
 
 module.exports = router;

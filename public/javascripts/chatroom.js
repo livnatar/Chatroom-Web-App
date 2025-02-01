@@ -237,7 +237,7 @@ const POLLING = 10000 ;
          */
         const fetchNewMessage = async function(message) {
             try {
-                const response = await fetch("/api/sendMessage", {
+                const response = await fetch("/api/send-message", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message }),
@@ -259,7 +259,7 @@ const POLLING = 10000 ;
          */
         const fetchMessages = async function (lastUpdate) {
             try {
-                const response = await fetch('/api/existingMessages', {
+                const response = await fetch('/api/existing-messages', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({lastUpdate})
