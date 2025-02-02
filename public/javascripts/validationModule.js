@@ -117,7 +117,8 @@ function validateField(fieldId, value) {
 function showValidationError(inputId, message) {
     const input = document.getElementById(inputId);
     input.classList.add('is-invalid');
-    const errorMessage = input.nextElementSibling;
+    //const errorMessage = input.nextElementSibling;
+    const errorMessage = input.closest('.mb-3').querySelector('.invalid-feedback');
     if (errorMessage) {
         errorMessage.textContent = message;
     }
@@ -131,7 +132,8 @@ function showValidationError(inputId, message) {
 function clearValidationError(inputId) {
     const input = document.getElementById(inputId);
     input.classList.remove('is-invalid');
-    const errorMessage = input.nextElementSibling;
+    const errorMessage = input.closest('.mb-3').querySelector('.invalid-feedback');
+        //input.nextElementSibling;
     if (errorMessage) {
         errorMessage.textContent = '';
     }

@@ -15,6 +15,11 @@ const COOKIE_EXPIRATION_TIME= 30;
 
         const registerForm = document.getElementById("registerForm");
 
+        /**
+         * Handles form submission for registration.
+         * Prevents default submission, runs validation, and submits if valid.
+         * Collects form data, stores it in a cookie, and submits the form.
+         */
         registerForm.addEventListener('submit', function (event) {
 
             // Prevent form submission to allow validation
@@ -36,7 +41,6 @@ const COOKIE_EXPIRATION_TIME= 30;
                 registerForm.submit(); // Submit the form since validation was successful
             }
         });
-
 
         /**
          * This function retrieves user data from a cookie and populates the form inputs with the retrieved values.

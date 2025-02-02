@@ -18,10 +18,15 @@
                 <input type="email" id="emailAddress" name="emailAddress" class="form-control" placeholder="Enter your email"  value="<%= oldEmail %>">
                 <div class="invalid-feedback"></div> <!-- Error message placeholder -->
             </div>
-            <div class="mb-3">
+            <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" value="<%= oldPassword %>">
-                <div class="invalid-feedback"></div> <!-- Error message placeholder -->
+                <div class="input-group d-flex align-items-center"> <!-- Use flexbox to align items -->
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" value="<%= oldPassword %>">
+                    <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                    <div class="invalid-feedback"></div> <!-- Error message placeholder -->
+                </div>
             </div>
             <button type="submit" class="btn btn-info w-100 text-white">Sign in</button>
         </form>

@@ -6,6 +6,10 @@ import { validateForm } from './validationModule.js';
 
         const createPasswordForm = document.getElementById("createPasswordForm");
 
+        /**
+         * Handles form submission for create password.
+         * Prevents default submission, runs validation, and submits if valid.
+         */
         createPasswordForm.addEventListener('submit', function (event) {
             // Prevent form submission to allow validation
             event.preventDefault();
