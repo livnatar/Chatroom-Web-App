@@ -69,12 +69,6 @@ const POLLING = 10000 ;
                             console.error('Unknown status from server:', response.status);
                     }
                 }
-                else if (response.error) {
-                    console.error('Error from server:', response.error);
-                }
-                else {
-                    console.log('Unexpected response format:', response);
-                }
             }
             catch (error) {
                 console.error('Error fetching messages:', error);
@@ -96,7 +90,8 @@ const POLLING = 10000 ;
                 ChatroomUIModule.editMsg(msgId,msg);
             }
             catch (error) {
-                console.log(error);
+                console.error('Error:', error);
+                window.location.href = '/error';
             }
         };
 
@@ -112,8 +107,8 @@ const POLLING = 10000 ;
                    ChatroomUIModule.cancelMsg();
             }
             catch (error) {
-                console.log(error);
-            }
+                console.error('Error:', error);
+                window.location.href = '/error';            }
         };
 
         /**
@@ -142,8 +137,8 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error(error);
-            }
+                console.error('Error:', error);
+                window.location.href = '/error';            }
         };
 
         /**
@@ -173,8 +168,8 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error(error);
-            }
+                console.error('Error:', error);
+                window.location.href = '/error';            }
         };
 
         /**
@@ -192,12 +187,9 @@ const POLLING = 10000 ;
                 if (message.deleted) {
                     ChatroomUIModule.deleteMsg(msgId);
                 }
-                else {
-                    console.log("Failed to delete the message");
-                }
             }
             catch (error) {
-                console.log(error);
+                console.error('Error:', error);
                 window.location.href = '/error';
             }
         }
@@ -248,6 +240,7 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.log(`Error fetching messages from database: ${error}`);
+                window.location.href = '/error';
             }
         };
 
@@ -270,6 +263,7 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.log(`Error fetching messages from database: ${error}`);
+                window.location.href = '/error';
             }
         };
 
@@ -293,6 +287,7 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.log(`Error fetching delete from database: ${error}`);
+                window.location.href = '/error';
             }
         };
 
@@ -316,7 +311,7 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.log(`Error fetching save from database: ${error}`);
-                //throw error;  // Propagate the error
+                window.location.href = '/error';
             }
         };
 
@@ -334,7 +329,7 @@ const POLLING = 10000 ;
             }
             catch (error) {
                 console.error(`Error checking session: ${error.message}`);
-                throw error;
+                window.location.href = '/error';
             }
         };
 
@@ -358,7 +353,6 @@ const POLLING = 10000 ;
             else
             {
                 window.location.href = '/error';
-                return Promise.reject(new Error("Couldn't find any response"));
             }
         }
 
@@ -489,6 +483,7 @@ const POLLING = 10000 ;
                 }
             } catch (error) {
                 console.error('Error handling message action:', error);
+                window.location.href = '/error';
             }
         };
 
