@@ -86,8 +86,10 @@ const POLLING = 10000 ;
          */
         const handleEdit = async function(msgId, msg){
             try {
-                await ChatroomAPIModule.fetchCheckSession();
-                ChatroomUIModule.editMsg(msgId,msg);
+                const message = await ChatroomAPIModule.fetchEdit(msgId);
+                if (message.edited) {
+                    ChatroomUIModule.editMsg(msgId, msg);
+                }
             }
             catch (error) {
                 console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
@@ -319,6 +321,29 @@ const POLLING = 10000 ;
         };
 
         /**
+         * Fetches the data for editing a message by sending a request to the server.
+         * It validates the server's response and returns the parsed JSON data.
+         *
+         * @param msgId - The ID of the message to fetch for editing.
+         * @returns {Promise<*>} - A promise that resolves to the message data (JSON format).
+         */
+        const fetchEdit = async function (msgId) {
+            try {
+                const response = await fetch('/api/edit-message',{
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({msgId})
+                });
+                const validResponse = await status(response);
+                return validResponse.json();
+            }
+            catch (error) {
+                console.error(`Error checking session: ${error.message}`);
+                window.location.href = '/error';
+            }
+        };
+
+        /**
          * Checks the current session status by making a GET request to the /api endpoint.
          *
          * @returns {Promise<Object>} - A promise resolving to the server's response indicating session status.
@@ -365,6 +390,7 @@ const POLLING = 10000 ;
             fetchDelete,
             fetchSave,
             fetchCheckSession,
+            fetchEdit,
             status
         }
     })();

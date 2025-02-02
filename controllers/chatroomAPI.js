@@ -1,6 +1,7 @@
 const {Message} = require('../models/message');
 const {User} = require('../models/user');
 const Sequelize = require("sequelize");
+const {checkPermission} = require("../models/authorisation");
 
 
 /**
@@ -101,17 +102,24 @@ exports.findAndDeleteMsg = async (req, res, next) => {
 
     try {
         const messageId = req.body.msgId;
+        const sessionId = req.session.userId;
 
-        // Delete the message if user_id matches
-        await Message.destroy({
-            where: { id: messageId }
-        });
+        if(await checkPermission(messageId,sessionId)){
+            // Delete the message if user_id matches
+            await Message.destroy({
+                where: { id: messageId }
+            });
 
-        res.json({ deleted: true });
+            res.json({ deleted: true });
+        }
+        else{
+            console.error('No permission to delete message.');
+            return res.status(500);
+        }
     }
     catch (error) {
         console.error('Error deleting message:', error);
-        return res.status(500).json({ authenticated: false });
+        return res.status(500);
     }
 };
 
@@ -185,6 +193,25 @@ exports.sendMsg = async (req, res, next) => {
     catch (err) {
         // Use the centralized error handler
         return handleError(err, req, res);
+    }
+};
+
+exports.editMsg = async (req, res, next) =>{
+
+    try {
+        const messageId = req.body.msgId;
+        const sessionId = req.session.userId;
+        if( await checkPermission(messageId,sessionId)){
+            res.json({ edited: true });
+        }
+        else{
+            console.error('No permission to edit message.');
+            return res.status(500);
+        }
+    }
+    catch (error) {
+        console.error('Error deleting message:', error);
+        return res.status(500);
     }
 };
 

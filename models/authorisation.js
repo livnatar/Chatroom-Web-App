@@ -1,4 +1,5 @@
 
+const {Message} = require('../models/message');
 
 /**
  * Middleware to check if the user is not logged in.
@@ -65,4 +66,18 @@ const checkSession = (req, res, next) => {
     next();
 };
 
-module.exports = {isNotLoggedIn, checkIfSessionExists, checkSession};
+/**
+ * Checks if the user has permission to perform an action on the message
+ * by comparing the session ID with the user ID associated with the message.
+ *
+ * @param msgId - The ID of the message to check.
+ * @param sessionId - The ID of the user’s current session.
+ * @returns {Promise<boolean>} - Returns a promise that resolves to true if the user owns the message, false otherwise.
+ */
+const checkPermission = async (msgId,sessionId) => {
+    //let msgId = req.body.msgId;
+    const user = await Message.findOne({where: {id: msgId}, attribute:['user_id']});
+    return user.user_id === sessionId;
+};
+
+module.exports = {isNotLoggedIn, checkIfSessionExists, checkSession, checkPermission};
