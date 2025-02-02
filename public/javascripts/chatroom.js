@@ -72,7 +72,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error('Error fetching messages from server:', error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -93,7 +93,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -110,7 +110,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error("Error canceling message editing: Session check failed.", error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -141,7 +141,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error(`Error saving message (ID: ${messageData.currentEditingMsgId}): "${messageData.newText}"`,error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -173,7 +173,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error(`Error sending message: "${message}"`, error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -195,7 +195,7 @@ const POLLING = 10000*600 ;
             }
             catch (error) {
                 console.error(`Error deleting message with ID ${msgId}:`, error.message || error);
-                window.location.href = '/error';
+                return null;
             }
         }
 
@@ -241,11 +241,13 @@ const POLLING = 10000*600 ;
                 });
 
                 const validResponse = await status(response);
+                console.log(validResponse);
+
                 return await validResponse.json();
             }
             catch (error) {
                 console.error(`Error fetching messages from database: ${error}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -264,11 +266,13 @@ const POLLING = 10000*600 ;
                 });
 
                 const validResponse = await status(response);
+                console.log(validResponse);
+
                 return await validResponse.json();
             }
             catch (error) {
                 console.error(`Error fetching messages from database: ${error}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -288,11 +292,13 @@ const POLLING = 10000*600 ;
                 });
 
                 const validResponse = await status(response);
+                console.log(validResponse);
+
                 return await validResponse.json();
             }
             catch (error) {
                 console.error(`Error fetching delete from database: ${error}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -312,11 +318,13 @@ const POLLING = 10000*600 ;
                 });
 
                 const validateResponse = await status(response);
+                console.log(validateResponse);
+
                 return await validateResponse.json();
             }
             catch (error) {
                 console.error(`Error fetching save from database: ${error}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -335,11 +343,12 @@ const POLLING = 10000*600 ;
                     body: JSON.stringify({msgId})
                 });
                 const validResponse = await status(response);
+                console.log(validResponse);
                 return validResponse.json();
             }
             catch (error) {
                 console.error(`Error checking session: ${error.message}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -353,11 +362,13 @@ const POLLING = 10000*600 ;
             try {
                 const response = await fetch('/api');
                 const validResponse = await status(response);
+                console.log(validResponse);
+
                 return validResponse.json();
             }
             catch (error) {
                 console.error(`Error checking session: ${error.message}`);
-                window.location.href = '/error';
+                return null;
             }
         };
 
@@ -374,11 +385,11 @@ const POLLING = 10000*600 ;
             }
             else if (response.status === 400){ // for input validation failure, bad request
                 window.location.href = '/chatroom';
-                //return Promise.reject(new Error("Bad Request - 400"));
+                return Promise.reject(new Error("Bad Request - 400"));
             }
-            else if (response.status >= 401) {  // the session is expired
+            else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
-                //return Promise.reject(new Error("Unauthorized - 401"));
+                return Promise.reject(new Error("Unauthorized - 401"));
             }
             else
             {
