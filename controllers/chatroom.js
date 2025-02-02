@@ -26,16 +26,17 @@ exports.postChatroom = async (req, res, next) => {
         if (!user) {
             // User not found
             req.flash('msg', 'Invalid email or password');
+            saveLoginAttempt(req, emailAddress, password);
             return res.redirect('/login');
         }
 
         // Compare the provided password with the stored hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await user.validatePassword(password);
 
         if (!isMatch) {
             // Password doesn't match
             req.flash('msg', 'Invalid email or password');
-            // add flash to keep the email and password
+            saveLoginAttempt(req, emailAddress, password);
             return res.redirect('/login');
         }
 
@@ -48,6 +49,7 @@ exports.postChatroom = async (req, res, next) => {
     } catch (error) {
         console.error(error);
         req.flash('msg', 'An error occurred during login. Please try again.');
+        saveLoginAttempt(req, emailAddress, password);
         res.redirect('/');
     }
 };
@@ -69,4 +71,18 @@ exports.getChatroom = async (req, res, next) => {
     // Render the chatroom
     const loggedUser = await User.findOne({ where: { id: req.session.userId } , attributes: ['firstName']});
     res.render('chatroom', {username: loggedUser.firstName, msg:msg});
+};
+
+/**
+ * Stores the login attempt details in the request flash messages.
+ * It keeps track of the last attempted email for user convenience,
+ * but does NOT store the password for security reasons.
+ *
+ * @param req - The request object.
+ * @param email - The email used for login.
+ * @param password - The password used for login
+ */
+const saveLoginAttempt = (req, email, password) => {
+    req.flash('oldEmail', email);
+    req.flash('oldPassword', password);
 };

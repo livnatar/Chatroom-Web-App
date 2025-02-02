@@ -59,6 +59,16 @@ User.addHook("beforeCreate", async (user,options) => {
 });
 
 /**
+ * Validates the provided password against the hashed password stored in the database.
+ *
+ * @param password - The plain text password to validate.
+ * @returns {Promise<void|*>} - Returns true if the password is correct, otherwise false.
+ */
+User.prototype.validatePassword = async function(password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+/**
  * Establishes a one-to-many relationship between User and Message.
  * A user can have multiple messages.
  */

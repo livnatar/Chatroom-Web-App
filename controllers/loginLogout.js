@@ -13,9 +13,19 @@ const createError = require('http-errors');
 exports.getLogin = (req, res, next) => {
 
     const messages = res.locals.messages;
+    const email = res.locals.oldEmail;
+    const password = res.locals.oldPassword;
+
     const msg = messages.length > 0 ? messages[0] : '';
     const isSuccess = msg.includes('success') | msg.includes('Please') ;
-    res.render('login', { msg, isSuccess, pageTitle: 'Login' });
+    const oldEmail = email.length > 0 ? email[0] : '' ;
+    const oldPassword = password.length > 0 ? password[0] : '';
+
+    res.render('login', {msg: msg,
+                         isSuccess: isSuccess,
+                         pageTitle: 'Login',
+                         oldEmail: oldEmail,
+                         oldPassword:oldPassword });
 };
 
 /**

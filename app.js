@@ -48,6 +48,8 @@ app.use((req, res, next) => {
   res.locals.messages = req.flash('msg')|| [];
   res.locals.foundMessages =  req.flash('foundMessages')|| [];
   res.locals.query = req.flash('query') || '';
+  res.locals.oldEmail = req.flash('oldEmail') || [];
+  res.locals.oldPassword = req.flash('oldPassword') || [];
 
   next();
 });
