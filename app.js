@@ -13,7 +13,6 @@ const registerRouter = require('./routes/register');
 const chatroomRouter = require('./routes/chatroom');
 const apiRouter = require('./routes/chatroomApi');
 const chatroomPagesRouter = require('./routes/chatroomPages');
-const {get404} = require("./controllers/error");
 
 const app = express();
 

@@ -137,22 +137,6 @@ exports.saveMsg = async (req, res, next) => {
     catch (err) {
         // Use the centralized error handler
         return handleError(err, req, res);
-
-        // // Handle validation errors
-        // if (err instanceof Sequelize.ValidationError) {
-        //     req.flash('msg', `Invalid input, message cannot be empty`);
-        //     return res.status(400);
-        // }
-        // // Handle database errors
-        // else if (err instanceof Sequelize.DatabaseError) {
-        //     req.flash('msg', `A database error occurred, please try again later.`);
-        //     return res.status(400);
-        // }
-        // // Handle unexpected errors
-        // else {
-        //     // Pass the error to the central error-handling middleware
-        //     return res.status(500);
-        // }
     }
 };
 
@@ -201,22 +185,6 @@ exports.sendMsg = async (req, res, next) => {
     catch (err) {
         // Use the centralized error handler
         return handleError(err, req, res);
-
-        // // Handle validation errors
-        // if (err instanceof Sequelize.ValidationError) {
-        //     req.flash('msg', `Invalid input, message cannot be empty`);
-        //     return res.status(400);
-        // }
-        // // Handle database errors
-        // else if (err instanceof Sequelize.DatabaseError) {
-        //     req.flash('msg', `A database error occurred, please try again later.`);
-        //     return res.status(400);
-        // }
-        // // Handle unexpected errors
-        // else {
-        //     // Pass the error to the central error-handling middleware
-        //     return res.status(500);
-        // }
     }
 };
 
