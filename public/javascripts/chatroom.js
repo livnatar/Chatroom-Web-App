@@ -71,7 +71,7 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error('Error fetching messages:', error);
+                console.error('Error fetching messages from server:', error.message || error);
                 window.location.href = '/error';
             }
         };
@@ -90,7 +90,7 @@ const POLLING = 10000 ;
                 ChatroomUIModule.editMsg(msgId,msg);
             }
             catch (error) {
-                console.error('Error:', error);
+                console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
                 window.location.href = '/error';
             }
         };
@@ -107,8 +107,9 @@ const POLLING = 10000 ;
                    ChatroomUIModule.cancelMsg();
             }
             catch (error) {
-                console.error('Error:', error);
-                window.location.href = '/error';            }
+                console.error("Error canceling message editing: Session check failed.", error.message || error);
+                window.location.href = '/error';
+            }
         };
 
         /**
@@ -137,8 +138,9 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error('Error:', error);
-                window.location.href = '/error';            }
+                console.error(`Error saving message (ID: ${messageData.currentEditingMsgId}): "${messageData.newText}"`,error.message || error);
+                window.location.href = '/error';
+            }
         };
 
         /**
@@ -168,8 +170,9 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error('Error:', error);
-                window.location.href = '/error';            }
+                console.error(`Error sending message: "${message}"`, error.message || error);
+                window.location.href = '/error';
+            }
         };
 
         /**
@@ -189,7 +192,7 @@ const POLLING = 10000 ;
                 }
             }
             catch (error) {
-                console.error('Error:', error);
+                console.error(`Error deleting message with ID ${msgId}:`, error.message || error);
                 window.location.href = '/error';
             }
         }
@@ -239,7 +242,7 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.log(`Error fetching messages from database: ${error}`);
+                console.error(`Error fetching messages from database: ${error}`);
                 window.location.href = '/error';
             }
         };
@@ -262,7 +265,7 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.log(`Error fetching messages from database: ${error}`);
+                console.error(`Error fetching messages from database: ${error}`);
                 window.location.href = '/error';
             }
         };
@@ -286,7 +289,7 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.log(`Error fetching delete from database: ${error}`);
+                console.error(`Error fetching delete from database: ${error}`);
                 window.location.href = '/error';
             }
         };
@@ -310,7 +313,7 @@ const POLLING = 10000 ;
                 return await validateResponse.json();
             }
             catch (error) {
-                console.log(`Error fetching save from database: ${error}`);
+                console.error(`Error fetching save from database: ${error}`);
                 window.location.href = '/error';
             }
         };

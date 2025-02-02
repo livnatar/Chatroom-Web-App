@@ -54,12 +54,12 @@ const checkSession = (req, res, next) => {
     if (!req.session || !req.session.userId) {
         req.flash('msg', 'Oops! It seems like you have been away for a bit too long');
         // Return 401 Unauthorized if session is missing
-        return res.status(401);
+        return res.status(401).json({ message: 'Oops! It seems like you have been away for a bit too long' });
     }
 
     // Respond if the path is `/api`, otherwise proceed to the next middleware
     if (req.path === '/') {
-        return res.status(200);
+        return res.status(200).json({ message: 'Session is valid' });
     }
 
     next();
