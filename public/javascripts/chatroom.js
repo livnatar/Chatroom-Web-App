@@ -374,13 +374,16 @@ const POLLING = 10000*600 ;
             }
             else if (response.status === 400){ // for input validation failure, bad request
                 window.location.href = '/chatroom';
+                return Promise.reject(new Error("Bad Request - 400"));
             }
             else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
+                return Promise.reject(new Error("Unauthorized - 401"));
             }
             else
             {
                 window.location.href = '/error';
+                return Promise.reject(new Error("Unhandled error"));
             }
         }
 
