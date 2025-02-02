@@ -428,43 +428,43 @@ const POLLING = 10000 ;
          `}
          */
         const createMessageHTML = (msg) => `
-        <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
-            <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
-                <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
-                    <div class="card-body position-relative p-2" style="min-height: 100px;">
-                        <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
-                            <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
-                            <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
-                                ${new Intl.DateTimeFormat('en-US', {
+    <div class="d-flex mb-3 ${msg.isOwnedByUser ? 'justify-content-end' : 'justify-content-start'}">
+        <div class="message-wrapper ${msg.isOwnedByUser ? 'ms-auto' : 'me-auto'}" style="max-width: 85%; min-width: 300px;">
+            <div class="card border-0 shadow-sm ${msg.isOwnedByUser ? 'bg-primary bg-opacity-60' : 'bg-light'}">
+                <div class="card-body position-relative p-2" style="min-height: 100px;">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="min-width: 200px;">
+                        <span class="small ${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">${msg.username}</span>
+                        <small class="${msg.isOwnedByUser ? 'text-white' : 'text-muted'}">
+                            ${new Intl.DateTimeFormat('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true
         }).format(new Date(msg.timestamp))}
-                            </small>
-                        </div>
-                        <p class="mb-4 ${msg.isOwnedByUser ? 'text-white' : ''}">${msg.message}</p>
-                        ${msg.isOwnedByUser ? `
-                            <div class="position-absolute bottom-0 end-0 m-2">
-                                <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}" data-message="${msg.message}">
-                                    Edit
-                                </button>
-                                <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
-                                    Delete
-                                </button>
-                            </div>
-                        ` : ''}
+                        </small>
                     </div>
+                    <p class="mb-5 ${msg.isOwnedByUser ? 'text-white' : ''} text-break">${msg.message}</p>
+                    ${msg.isOwnedByUser ? `
+                        <div class="position-absolute bottom-0 end-0 m-2">
+                            <button class="btn btn-light btn-sm edit-button" data-message-id="${msg.id}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-button" data-message-id="${msg.id}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
-                <small class="text-muted d-block mt-1">
-                    ${new Intl.DateTimeFormat('en-US', {
+            </div>
+            <small class="text-muted d-block mt-1">
+                ${new Intl.DateTimeFormat('en-US', {
             weekday: 'short',
             month: 'short',
             day: 'numeric'
         }).format(new Date(msg.timestamp))}
-                </small>
-            </div>
+            </small>
         </div>
-    `;
+    </div>
+`;
 
         /**
          * This function handles the event listener for actions on messages, such as editing and deleting.
@@ -474,12 +474,14 @@ const POLLING = 10000 ;
          * @returns {Promise<void>}
          */
         const handleMessagesEventListener = async (event) => {
-            const target = event.target;
+            const target = event.target.closest('.edit-button, .delete-button'); // Ensure it detects button clicks even if the icon is clicked
+            if (!target) return; // Exit if not clicking an edit or delete button
             const messageId = target.dataset.messageId;
 
             try {
                 if (target.classList.contains('edit-button')) {
-                    const message = target.dataset.message;
+                    const message = target.closest(".message-wrapper").querySelector('p').innerText;
+                        //target.dataset.message;
                     await ManagerModule.handleEdit(messageId, message);
                 }
                 if (target.classList.contains('delete-button')) {
@@ -613,10 +615,10 @@ const POLLING = 10000 ;
             // Find the edit button using the message ID stored in its data attribute
             const editButton = document.querySelector(`button.edit-button[data-message-id="${messageId}"]`);
             if (editButton) {
-                // Go up to the card-body and find the message paragraph (p.mb-4)
+                // Go up to the card-body and find the message paragraph (p.mb-5)
                 const cardBody = editButton.closest('.card-body');
                 if (cardBody) {
-                    const messageElement = cardBody.querySelector('p.mb-4');
+                    const messageElement = cardBody.querySelector('p.mb-5');
                     if (messageElement) {
                         messageElement.textContent = newText;  // Update the message text in the UI
                     }
