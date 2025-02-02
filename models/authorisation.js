@@ -75,7 +75,6 @@ const checkSession = (req, res, next) => {
  * @returns {Promise<boolean>} - Returns a promise that resolves to true if the user owns the message, false otherwise.
  */
 const checkPermission = async (msgId,sessionId) => {
-    //let msgId = req.body.msgId;
     const user = await Message.findOne({where: {id: msgId}, attribute:['user_id']});
     return user.user_id === sessionId;
 };

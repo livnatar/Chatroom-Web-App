@@ -1,6 +1,6 @@
 
 // ----------------------------------- consts ----------------------------------
-const POLLING = 10000 ;
+const POLLING = 10000*600 ;
 
 //---------------------------------- functions ---------------------------------
 
@@ -375,7 +375,7 @@ const POLLING = 10000 ;
             else if (response.status === 400){ // for input validation failure, bad request
                 window.location.href = '/chatroom';
             }
-            else if (response.status >= 401) {  // the session is expired
+            else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
             }
             else
