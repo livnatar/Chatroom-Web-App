@@ -378,18 +378,18 @@ const POLLING = 10000 ;
      * The module also opens and closes modals for editing messages and validates the message content before processing.
      *
      * @type {{
-     *    editMsg: editMsg,
-     *    cancelMsg: cancelMsg,
+     *    editMsg,
+     *    cancelMsg,
      *    getEditingMessageData: ((function(): ({currentEditingMsgId: null, newText: string}|null))|*),
-     *    displayMessages: displayMessages,
-     *    updateMessageInUI: updateMessageInUI,
-     *    appendNewMessage: appendNewMessage,
-     *    deleteMsg: deleteMsg,
-     *    clearMsgBox: clearMsgBox,
-     *    closeModal: closeModal,
-     *    clearEditingState: clearEditingState,
+     *    displayMessages,
+     *    updateMessageInUI,
+     *    appendNewMessage,
+     *    deleteMsg,
+     *    clearMsgBox,
+     *    closeModal,
+     *    clearEditingState,
      *    getMessageContent: ((function(): (string|null))|*),
-     *    clearMessages: clearMessages}}
+     *    clearMessages}}
      */
     const ChatroomUIModule = (function() {
 

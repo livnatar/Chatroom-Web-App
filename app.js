@@ -7,7 +7,6 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const errorController = require('./controllers/error');
 const sequelize = require('./models/index');
-const {isNotLoggedIn} = require('./models/authorisation');
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
