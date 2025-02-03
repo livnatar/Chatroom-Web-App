@@ -9,9 +9,5 @@
  * @param next - Express next function, passed for consistency (not used here)
  */
 exports.get404 = (req, res, next) => {
-    res.status(404).render('error', {
-        pageTitle: 'Page Not Found',
-        path : '',
-        errorMsg: 'Page Not Found'
-    });
+    res.status(404).render('error');
 };

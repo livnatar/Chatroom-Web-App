@@ -204,7 +204,6 @@ exports.sendMsg = async (req, res, next) => {
     }
 };
 
-
 /**
  * Utility function to handle errors in a standardized way.
  * It checks the type of error and sends an appropriate response to the client.

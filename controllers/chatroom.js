@@ -1,5 +1,4 @@
 const {User} = require("../models/user");
-const bcrypt = require("bcrypt");
 
 /**
  * Controller function to handle the login process for a user. It checks the email and password
@@ -66,11 +65,9 @@ exports.postChatroom = async (req, res, next) => {
  */
 exports.getChatroom = async (req, res, next) => {
 
-    const messages = res.locals.messages;
-    //const msg = messages.length > 0 ? messages : '';
     // Render the chatroom
     const loggedUser = await User.findOne({ where: { id: req.session.userId } , attributes: ['firstName']});
-    res.render('chatroom', {username: loggedUser.firstName});//, msg:msg});
+    res.render('chatroom', {username: loggedUser.firstName});
 };
 
 /**
