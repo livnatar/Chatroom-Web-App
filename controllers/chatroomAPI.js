@@ -84,9 +84,6 @@ exports.existingMessages = async (req, res, next) => {
             return res.json({ status: 'NO_CHANGE', messages: [] });
         }
     } catch (err) {
-        // console.error('Error fetching messages:', error);
-        // res.status(500).json({ error: 'Failed to fetch messages' });
-        // Use the centralized error handler
         return handleError(err, req, res);
     }
 };
@@ -120,9 +117,6 @@ exports.findAndDeleteMsg = async (req, res, next) => {
         }
     }
     catch (err) {
-        //console.error('Error deleting message:', error);
-        //return res.status(500);
-        // Use the centralized error handler
         return handleError(err, req, res);
     }
 };
@@ -142,15 +136,14 @@ exports.saveMsg = async (req, res, next) => {
         const newMsg = req.body.newInput;
         const sessionId = req.session.userId;
 
-        let hasPermission = false;
-        try {
-            hasPermission = await checkPermission(messageId, sessionId);
-        } catch (error) {
-            throw new Error("Database error while checking permissions: " + error.message);
-        }
+        let hasPermission = await checkPermission(messageId, sessionId);
 
         if (hasPermission) {
-            await Message.update({ input: newMsg }, { where: { id: messageId } });
+
+            const [updatedCount] = await Message.update({ input: newMsg }, { where: { id: messageId } });
+            if (updatedCount === 0) {
+                return res.status(400).json({ message: 'No changes applied.' });
+            }
             res.json({ updated: true, newInput: newMsg });
         } else {
             return res.status(405).json({ message: 'No permission to save message.' });
@@ -211,27 +204,6 @@ exports.sendMsg = async (req, res, next) => {
     }
 };
 
-// exports.editMsg = async (req, res, next) =>{
-//
-//     try {
-//         const messageId = req.body.msgId;
-//         const sessionId = req.session.userId;
-//         if( await checkPermission(messageId,sessionId)){
-//
-//             //add here
-//             res.json({ edited: true });
-//         }
-//         else{
-//             console.error('No permission to edit message.');
-//             return res.status(500);
-//         }
-//     }
-//     catch (error) {
-//         console.error('Error deleting message:', error);
-//         return res.status(500);
-//     }
-// };
-
 
 /**
  * Utility function to handle errors in a standardized way.
@@ -259,6 +231,6 @@ function handleError(err, req, res) {
     // Handle unexpected errors
     else {
         console.error('Unexpected error:', err);
-        return res.status(500);
+        return res.status(500).json({ message: 'An unexpected error occurred' });
     }
 }
