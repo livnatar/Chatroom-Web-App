@@ -31,14 +31,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Enable sessions
 app.use(session({
     secret: 'somesecretkey',
-    //store: myStore, // default is memory store
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
     cookie: { maxAge: 10 * 60 * 1000 } // milliseconds
 }));
 
-// Sync the session store
-// myStore.sync();
 
 app.use(flash());
 

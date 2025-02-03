@@ -367,6 +367,7 @@ const POLLING = 10000*600 ;
                 return validResponse.json();
             }
             catch (error) {
+                // add message display here
                 console.error(`Error checking session: ${error.message}`);
                 return null;
             }
