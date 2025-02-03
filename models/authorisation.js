@@ -42,7 +42,8 @@ const checkIfSessionExists = (req, res, next) => {
 /**
  * Middleware to check if the user's session is still active.
  * If the session is missing or expired, it sends a 401 Unauthorized response.
- * If the request is to the root path `/`, it responds with a success message.
+ * If the request is a browser-based request (a GET request or if the client accepts HTML),
+ * it redirects the user to an error page. For API requests, it sends a JSON response.
  * Otherwise, it allows the request to proceed to the next middleware or route handler.
  *
  * @param req - Express request object containing session data
@@ -64,8 +65,6 @@ const checkSession = (req, res, next) => {
 
         // Return JSON response with a 401 Unauthorized status for API requests
         return res.status(401).json({ message: 'Oops! It seems like you have been away for a bit too long' });
-
-
     }
 
     // If session is valid, proceed with the next middleware or route handler
