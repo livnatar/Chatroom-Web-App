@@ -1,10 +1,9 @@
 
-// ----------------------------------- consts ----------------------------------
-const POLLING = 10000 ;
-
-//---------------------------------- functions ---------------------------------
 
 (function() {
+
+// ----------------------------------- consts ----------------------------------
+    const POLLING = 10000*600 ;
 
     let lastUpdate = null;
 
@@ -741,6 +740,10 @@ const POLLING = 10000 ;
         };
 
         const showError = function(errorMsg){
+
+            if (editModal.classList.contains('show')) {
+                closeModal(editModal);
+            }
             modalErrorInput.innerHTML = errorMsg;
             openModal(errorModal);
         };

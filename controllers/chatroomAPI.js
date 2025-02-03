@@ -137,23 +137,38 @@ exports.findAndDeleteMsg = async (req, res, next) => {
  */
 exports.saveMsg = async (req, res, next) => {
     try{
-        const messageId = req.body.msgId;
+        //const messageId = req.body.msgId;
+        const messageId = null;
         const newMsg = req.body.newInput;
         const sessionId = req.session.userId;
 
-        if(await checkPermission(messageId,sessionId)) {
-
-            await Message.update(
-                {input: newMsg},
-                {where: {id: messageId}});
-
-
-            //add here
-            res.json({updated: true, newInput: newMsg});
+        let hasPermission = false;
+        try {
+            hasPermission = await checkPermission(messageId, sessionId);
+        } catch (error) {
+            throw new Error("Database error while checking permissions: " + error.message);
         }
-        else{
-            return res.status(405).json({ message:'No permission to save message.'});
+
+        if (hasPermission) {
+            await Message.update({ input: newMsg }, { where: { id: messageId } });
+            res.json({ updated: true, newInput: newMsg });
+        } else {
+            return res.status(405).json({ message: 'No permission to save message.' });
         }
+
+        // if(await checkPermission(messageId,sessionId)) {
+        //
+        //     await Message.update(
+        //         {input: newMsg},
+        //         {where: {id: messageId}});
+        //
+        //
+        //     //add here
+        //     res.json({updated: true, newInput: newMsg});
+        // }
+        // else{
+        //     return res.status(405).json({ message:'No permission to save message.'});
+        // }
     }
     catch (err) {
         // Use the centralized error handler
@@ -229,6 +244,7 @@ exports.sendMsg = async (req, res, next) => {
 //         return res.status(500);
 //     }
 // };
+
 
 /**
  * Utility function to handle errors in a standardized way.
