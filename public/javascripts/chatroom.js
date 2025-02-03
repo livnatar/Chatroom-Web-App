@@ -348,19 +348,19 @@
      * The module also opens and closes modals for editing messages and validates the message content before processing.
      *
      * @type {{
-     *   editMsg: editMsg,
-     *   cancelMsg: cancelMsg,
-     *   deleteMsg: deleteMsg,
-     *   closeEditModal: closeEditModal,
+     *   editMsg
+     *   cancelMsg
+     *   deleteMsg
+     *   closeEditModal
      *   getMessageContent: ((function(): (string|null))|*),
-     *   clearMessages: clearMessages,
+     *   clearMessages
      *   getEditingMessageData: ((function(): ({currentEditingMsgId: null, newText: string}|null))|*),
-     *   showError: showError,
-     *   displayMessages: displayMessages,
-     *   updateMessageInUI: updateMessageInUI,
-     *   appendNewMessage: appendNewMessage,
-     *   clearMsgBox: clearMsgBox,
-     *   clearEditingState: clearEditingState}}
+     *   showError
+     *   displayMessages
+     *   updateMessageInUI
+     *   appendNewMessage
+     *   clearMsgBox
+     *   clearEditingState}}
      */
     const ChatroomUIModule = (function() {
 

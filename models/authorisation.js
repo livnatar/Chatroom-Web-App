@@ -52,12 +52,30 @@ const checkIfSessionExists = (req, res, next) => {
  */
 const checkSession = (req, res, next) => {
 
+    // if (!req.session || !req.session.userId) {
+    //     req.flash('msg', 'Oops! It seems like you have been away for a bit too long');
+    //     // Return 401 Unauthorized if session is missing
+    //     return res.status(401).json({ message: 'Oops! It seems like you have been away for a bit too long' });
+    // }
+    //
+    // next();
     if (!req.session || !req.session.userId) {
+        // Handle the case where the session is missing or expired
         req.flash('msg', 'Oops! It seems like you have been away for a bit too long');
-        // Return 401 Unauthorized if session is missing
+
+        // Check if the client accepts HTML (likely a browser)
+        if (req.method === 'GET' || req.accepts('html')) {
+            // If it's a regular browser request, redirect to an error page (like a login page)
+            return res.redirect('/error');  // Redirect to your error page, can be custom like '/login' too
+        }
+
+        // Return JSON response with a 401 Unauthorized status for API requests
         return res.status(401).json({ message: 'Oops! It seems like you have been away for a bit too long' });
+
+
     }
 
+    // If session is valid, proceed with the next middleware or route handler
     next();
 };
 
