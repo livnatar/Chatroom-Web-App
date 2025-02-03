@@ -54,6 +54,12 @@ exports.postAccountCreated = async (req, res, next) => {
             const userInfo = JSON.parse(req.cookies.userInfo);
             const newUser = await User.create({firstName:userInfo.firstName, lastName:userInfo.lastName, email:userInfo.email.toLowerCase(), password:password.trim()});
 
+            // handles cases where a user cannot be created
+            if(!newUser){
+                req.flash('msg', 'Registration not completed, please try again');
+                res.redirect('/login');
+            }
+
             // Clear the cookie after the user sets the password
             res.clearCookie('userInfo');
 
@@ -63,14 +69,14 @@ exports.postAccountCreated = async (req, res, next) => {
         }
     }
     catch (err) {
-        // Handle validation errors
-        if (err instanceof Sequelize.ValidationError) {
-            req.flash('msg', `Invalid input (${err.message})`);
+        // Handle unique constraint errors
+        if (err instanceof Sequelize.UniqueConstraintError) {
+            req.flash('msg', "This email is already registered. Please use a different email address.");
             res.redirect('/register');
         }
-        // Handle unique constraint errors
-        else if (err instanceof Sequelize.UniqueConstraintError) {
-            req.flash('msg', "This email is already registered. Please use a different email address.");
+        // Handle validation errors
+        else if (err instanceof Sequelize.ValidationError) {
+            req.flash('msg', `Invalid input (${err.message})`);
             res.redirect('/register');
         }
         // Handle database errors

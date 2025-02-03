@@ -51,10 +51,13 @@ const checkIfSessionExists = (req, res, next) => {
  * @returns {*} - Returns a JSON response for session status or calls `next()`
  */
 const checkSession = (req, res, next) => {
+
     if (!req.session || !req.session.userId) {
+        req.flash('msg', 'Oops! It seems like you have been away for a bit too long');
         // Return 401 Unauthorized if session is missing
         return res.status(401).json({ message: 'Oops! It seems like you have been away for a bit too long' });
     }
+
     next();
 };
 
