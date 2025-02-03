@@ -2,9 +2,7 @@
 
 (function() {
 
-// ----------------------------------- consts ----------------------------------
-    const POLLING = 10000*600 ;
-
+    const POLLING = 10000;
     let lastUpdate = null;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -12,10 +10,8 @@
         //fetch messages from database if there are any
         ManagerModule.fetchAndDisplayMessages().catch(error => {console.log(error)});
 
-        // Event listener for the Save button in the modal
+        // Event listener for the Save and Close buttons in the modal
         document.getElementById('saveEditButton').addEventListener('click', ManagerModule.initiateMessageSave);
-
-        // Event listener for when the modal is closed
         document.getElementById('editMessageModal').addEventListener('hidden.bs.modal', ManagerModule.handleCancel); // Handles modal close
 
         // Event listener for the Send button responsible for sending messages
@@ -23,7 +19,6 @@
 
         // display messages every 10 seconds
         setInterval(ManagerModule.fetchAndDisplayMessages, POLLING);
-
     });
 
     /**
@@ -44,8 +39,15 @@
         const spinner = document.querySelector("#loadingSpinner");
 
         /**
-         * This function fetches and displays messages from the server. It handles different response statuses
-         * and updates the UI accordingly. It also logs any errors or unexpected response formats.
+         * Fetches messages from the server based on the last update timestamp and updates the UI.
+         *
+         * This function handles the following server response statuses:
+         * - `INITIAL_LOAD`: all messages are displayed in the UI.
+         * - `UPDATED`: all messages are displayed in the UI.
+         * - `ALL_DELETED`: Clears all messages from the UI.
+         * - `NO_CHANGE`: No updates to messages, so no changes are made.
+         *
+         * If an error occurs during fetching or UI updates, it is caught and an error message is shown.
          *
          * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
          */
@@ -77,50 +79,32 @@
         };
 
         /**
-         * This function handles the editing of a message. It first checks the session with the server,
-         * then calls the UI module to initiate the editing process.
+         * Handles the editing of a message in the chatroom UI.
+         * This function triggers the edit process for the specified message.
          *
-         * @param {string} msgId - The ID of the message to edit.
-         * @param {string} msg - The content of the message to edit.
-         * //@returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * @param msgId
+         * @param msg
          */
         const handleEdit = function(msgId, msg){
-       // const handleEdit = async function(msgId, msg){
-            //try {
-                  //const message = await ChatroomAPIModule.fetchEdit(msgId);
-               // if (message.edited) {
-                    ChatroomUIModule.editMsg(msgId, msg);
-               // }
-            //}
-            // catch (error) {
-            //     console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
-            //     return null;
-            // }
+            ChatroomUIModule.editMsg(msgId, msg);
         };
 
         /**
-         * This function handles the cancellation of message editing. It first checks the session with the server,
-         * then calls the UI module to cancel the message editing process.
-         *
-         * //@returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * Cancels the message editing process in the chatroom UI.
+         * This function triggers the cancel operation, reverting any changes made to the message.
          */
-        //const handleCancel = async function(){
         const handleCancel = function(){
-            //try {
-                  // await ChatroomAPIModule.fetchCheckSession();
-                   ChatroomUIModule.cancelMsg();
-            // }
-            // catch (error) {
-            //     console.error("Error canceling message editing: Session check failed.", error.message || error);
-            //     return null;
-            // }
+           ChatroomUIModule.cancelMsg();
         };
 
         /**
-         * This function initiates the process of saving a message after editing. It retrieves the message data from the UI module,
-         * then calls the API to save the changes. If the update is successful, it updates the message in the UI and clears the editing state.
+         * Initiates the process of saving an edited message in the chatroom.
          *
-         * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * This function retrieves the message data from the UI, triggers the save operation via an API call,
+         * and updates the UI accordingly if the message is successfully updated.
+         * It also handles errors and manages the visibility of a loading spinner during the process.
+         *
+         * @returns {Promise<void>}
          */
         const initiateMessageSave = async function() {
 
@@ -154,10 +138,13 @@
         };
 
         /**
-         * This function handles the process of sending a new message. It retrieves the message content from the UI module,
-         * then calls the API to send the message. If the message is successfully added, it appends the new message to the UI and clears the input field.
+         * Handles sending a new message in the chatroom.
          *
-         * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * This function retrieves the message content from the UI, sends it to the server via an API call,
+         * and updates the UI if the message is successfully added to the database.
+         * If the message is successfully added, it appends the new message to the chat and clears the input field.
+         *
+         * @returns {Promise<void>}
          */
         const handleSendNewMessage = async function(){
 
@@ -185,11 +172,14 @@
         };
 
         /**
-         * This function handles the process of deleting a message. It sends a delete request to the API with the message ID,
-         * and if the message is successfully deleted from the database, it removes the message from the DOM.
+         * Handles the deletion of a message in the chatroom.
          *
-         * @param {string} msgId - The ID of the message to delete.
-         * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * This function sends a request to the server to delete the specified message and updates the UI
+         * to reflect the deletion if successful. It also manages the visibility of a loading spinner
+         * during the process and handles any errors that occur.
+         *
+         * @param msgId
+         * @returns {Promise<void>}
          */
         const handleDelete = async function (msgId){
 
@@ -224,223 +214,122 @@
     /**
      * The `ChatroomAPIModule` module provides functions for interacting with the chatroom API.
      * It handles operations such as sending, fetching, deleting, saving messages, and checking the session status.
-     * The module validates responses from the server and redirects based on different status codes.
+     * The module validates the server response, handles errors, and takes appropriate actions based on the status code.
      *
      * @type {{
-     *   fetchNewMessage: ((function(string): Promise<Object>)|*),
-     *   fetchMessages: ((function(Date|string): Promise<Object>)|*),
-     *   fetchDelete: ((function(string): Promise<Object>)|*),
-     *   fetchSave: ((function(string, string): Promise<Object>)|*),
-     *   fetchCheckSession: ((function(): Promise<Object>)|*),
-     *   status: ((function(Response): (Promise<never>|*))|*)
-     * }}
+     *   fetchNewMessage: (function(string): Promise<*>),
+     *   fetchDelete: (function(string): Promise<*>),
+     *   fetchMessages: (function((Date|string)): Promise<*>),
+     *   fetchSave: (function(string, string): Promise<*>),
+     *   status: ((function(Response): (Promise<never>|*))|*)}}
      */
     const ChatroomAPIModule = (function() {
 
-        // const spinner = document.querySelector("#loadingSpinner");
-
         /**
-         * This function handles the process of sending a new message. It sends a request to the server with the message content.
-         * If the request is successful, the server responds with the message status.
+         * This function handles the process of sending a new message to the server.
+         * It sends a POST request to the server with the message content, and if the request is successful,
+         * the server responds with the message status. The function processes the server's response
+         * and returns the result.
          *
          * @param {string} message - The message content to be sent.
          * @returns {Promise<Object>} - A promise resolving to the server response containing message status.
          */
         const fetchNewMessage = async function(message) {
+            const response = await fetch("/api/send-message", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message }),
+            });
 
-            // setting the spinner
-            // spinner.classList.remove("d-none");
-
-            //try {
-                const response = await fetch("/api/send-message", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message }),
-                });
-
-                const validResponse = await status(response);
-                console.log(validResponse);
-
-                return await validResponse.json();
-            //}
-            // catch (error) {
-            //     // console.error(`Error fetching messages from database: ${error}`);
-            //     // return null;
-            //     ChatroomUIModule.showError(error.message || error);
-            // }
-            // finally {
-            //     // turn off spinner
-            //     spinner.classList.add("d-none");
-            // }
+            const validResponse = await status(response);
+            return await validResponse.json();
         };
 
         /**
-         * Fetches messages from the server based on the last update timestamp.
+         * Fetches messages from the server based on the timestamp of the last update.
+         * This function sends a POST request to the server with the provided timestamp,
+         * requesting messages that have been added or updated since the specified timestamp.
          *
          * @param {Date|string} lastUpdate - The timestamp of the last known update to check for changes.
          * @returns {Promise<Object>} - A promise resolving to the server response containing message data.
          */
         const fetchMessages = async function (lastUpdate) {
+            const response = await fetch('/api/existing-messages', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({lastUpdate})
+            });
 
-            //try {
-                const response = await fetch('/api/existing-messages', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({lastUpdate})
-                });
-
-                const validResponse = await status(response);
-                console.log(validResponse);
-
-                return await validResponse.json();
-            //}
-            // catch (error) {
-            //     // console.error(`Error fetching messages from database: ${error}`);
-            //     // return null;
-            //     ChatroomUIModule.showError(error.message || error);
-            // }
+            const validResponse = await status(response);
+            return await validResponse.json();
         };
 
         /**
-         * Sends a request to delete a specific message from the database.
+         * Sends a request to delete a specific message from the database based on its unique identifier.
+         * This function performs a DELETE request to the server, passing the message ID, and handles the server's response.
+         *
+         * If the deletion is successful, the server responds with a success status. If the deletion fails, the response
+         * will contain an error message or failure status.
          *
          * @param {string} msgId - The unique identifier of the message to delete.
          * @returns {Promise<Object>} - A promise resolving to the server response indicating success or failure.
          */
         const fetchDelete = async function (msgId) {
+            const response = await fetch('/api/find-and-delete-msg', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({msgId})
+            });
 
-            // setting the spinner
-          //  spinner.classList.remove("d-none");
-
-           // try {
-                // find and delete message from database
-                const response = await fetch('/api/find-and-delete-msg', {
-                    method: 'DELETE',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({msgId})
-                });
-
-                const validResponse = await status(response);
-                console.log(validResponse);
-
-                return await validResponse.json();
-            //}
-            // catch (error) {
-            //     // console.error(`Error fetching delete from database: ${error}`);
-            //     // return null;
-            //     ChatroomUIModule.showError(error.message || error);
-            // }
-            // finally {
-            //     // turn off spinner
-            //     spinner.classList.add("d-none");
-            // }
+            const validResponse = await status(response);
+            return await validResponse.json();
         };
 
         /**
-         * Sends a request to save a new input for a specific message.
+         * Sends a request to save a new input for a specific message, updating the message's content.
+         * This function performs a PUT request to the server, passing the message ID and the new input.
+         * The server processes the update and responds with a status indicating success or failure.
          *
          * @param {string} msgId - The unique identifier of the message.
          * @param {string} newInput - The new input to save for the message.
          * @returns {Promise<Object>} - A promise resolving to the server response.
          */
         const fetchSave = async function (msgId, newInput) {
+            const response = await fetch('/api/save-msg', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({msgId, newInput})
+            });
 
-            // // setting the spinner
-            // spinner.classList.remove("d-none");
-            //
-            // try {
-                const response = await fetch('/api/save-msg', {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({msgId, newInput})
-                });
-
-                const validateResponse = await status(response);
-                console.log(validateResponse);
-
-                return await validateResponse.json();
-           // }
-            // catch (error) {
-            //     console.error( error);
-            //     ChatroomUIModule.showError(error.message);
-            //     //console.error(`Error fetching save from database: ${error}`);
-            //     //return null;
-            // }
-            // finally {
-            //     // turn off spinner
-            //     spinner.classList.add("d-none");
-            // }
+            const validateResponse = await status(response);
+            return await validateResponse.json();
         };
 
-        // /**
-        //  * Fetches the data for editing a message by sending a request to the server.
-        //  * It validates the server's response and returns the parsed JSON data.
-        //  *
-        //  * @param msgId - The ID of the message to fetch for editing.
-        //  * @returns {Promise<*>} - A promise that resolves to the message data (JSON format).
-        //  */
-        // const fetchEdit = async function (msgId) {
-        //     try {
-        //         const response = await fetch('/api/edit-message',{
-        //             method: 'POST',
-        //             headers: {'Content-Type': 'application/json'},
-        //             body: JSON.stringify({msgId})
-        //         });
-        //         const validResponse = await status(response);
-        //         console.log(validResponse);
-        //         return validResponse.json();
-        //     }
-        //     catch (error) {
-        //         console.error(`Error checking session: ${error.message}`);
-        //         return null;
-        //     }
-        // };
-
-        // /**
-        //  * Checks the current session status by making a GET request to the /api endpoint.
-        //  *
-        //  * @returns {Promise<Object>} - A promise resolving to the server's response indicating session status.
-        //  * @throws {Error} - Throws an error if the session check fails.
-        //  */
-        // const fetchCheckSession = async function () {
-        //     try {
-        //         const response = await fetch('/api');
-        //         const validResponse = await status(response);
-        //         console.log(validResponse);
-        //
-        //         return validResponse.json();
-        //     }
-        //     catch (error) {
-        //         // add message display here
-        //         console.error(`Error checking session: ${error.message}`);
-        //         return null;
-        //     }
-        // };
-
         /**
-         * Handles the response status and redirects based on the status code.
+         * Handles the response status of a fetch request and takes appropriate actions based on the status code.
+         *
+         * This function checks the status code of the fetch response:
+         * - If the status code is between 200 and 299 (inclusive), it returns the response.
+         * - If the status code indicates a client-side error (400 or 405), it rejects the promise and provides the error response.
+         * - If the status code indicates an authorization issue (401), it redirects to the login page.
+         * - For all other status codes, it redirects to a generic error page.
          *
          * @param {Response} response - The fetch response to be validated.
          * @returns {Promise<never>|*} - Returns the response if status is valid; otherwise, redirects and rejects.
          */
-       async function status(response) {
-
+        async function status(response) {
             if (response.status >= 200 && response.status < 300) {
                 return response
             }
             else if (response.status === 400 || response.status === 405 ){ // for input validation failure, bad request // Method Not Allowed
-                //window.location.href = '/chatroom';
                 return Promise.reject(await response.json());
-                //return response;
             }
             else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
-                //return Promise.reject(new Error("Unauthorized - 401"));
             }
             else
             {
                 window.location.href = '/error';
-               // return Promise.reject(new Error("Unhandled error"));
             }
         }
 
@@ -449,8 +338,6 @@
             fetchMessages,
             fetchDelete,
             fetchSave,
-            //fetchCheckSession,
-            //fetchEdit,
             status
         }
     })();
@@ -461,18 +348,19 @@
      * The module also opens and closes modals for editing messages and validates the message content before processing.
      *
      * @type {{
-     *    editMsg,
-     *    cancelMsg,
-     *    getEditingMessageData: ((function(): ({currentEditingMsgId: null, newText: string}|null))|*),
-     *    displayMessages,
-     *    updateMessageInUI,
-     *    appendNewMessage,
-     *    deleteMsg,
-     *    clearMsgBox,
-     *    closeModal,
-     *    clearEditingState,
-     *    getMessageContent: ((function(): (string|null))|*),
-     *    clearMessages}}
+     *   editMsg: editMsg,
+     *   cancelMsg: cancelMsg,
+     *   deleteMsg: deleteMsg,
+     *   closeEditModal: closeEditModal,
+     *   getMessageContent: ((function(): (string|null))|*),
+     *   clearMessages: clearMessages,
+     *   getEditingMessageData: ((function(): ({currentEditingMsgId: null, newText: string}|null))|*),
+     *   showError: showError,
+     *   displayMessages: displayMessages,
+     *   updateMessageInUI: updateMessageInUI,
+     *   appendNewMessage: appendNewMessage,
+     *   clearMsgBox: clearMsgBox,
+     *   clearEditingState: clearEditingState}}
      */
     const ChatroomUIModule = (function() {
 
@@ -566,15 +454,15 @@
             try {
                 if (target.classList.contains('edit-button')) {
                     const message = target.closest(".message-wrapper").querySelector('p').innerText;
-                        //target.dataset.message;
                     await ManagerModule.handleEdit(messageId, message);
                 }
                 if (target.classList.contains('delete-button')) {
                     await ManagerModule.handleDelete(messageId);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error('Error handling message action:', error);
-                window.location.href = '/error';
+                ChatroomUIModule.showError('Something went wrong! Please try again later.');
             }
         };
 
@@ -659,7 +547,6 @@
          * @param msgId
          */
         const deleteMsg = function (msgId) {
-
             const message = document.querySelector(`[data-message-id="${msgId}"]`);
             if (message) {
                 const messageContainer = message.closest('.message-wrapper');
@@ -713,22 +600,28 @@
         };
 
         /**
-         * This function opens the modal that allows the user to edit a message.
-         * It uses Bootstrap's Modal component to display the modal by targeting the
-         * modal element with the ID `editMessageModal`.
+         * This function opens a modal, either for editing or error.
+         *
+         * @param modal
          */
         const openModal = function(modal) {
             modal.show();
         };
 
-       const closeEditModal  = function(){
+        /**
+         * Closes the edit modal.
+         * This function calls another function to close the modal associated with editing a message.
+         */
+        const closeEditModal  = function(){
            closeModal(editModal);
-       };
-
+        };
 
         /**
-         * This function closes the modal that is used for editing a message.
-         * It uses Bootstrap's Modal component to hide the modal.
+         * Closes the specified modal.
+         * This function hides the given modal by calling the `hide` method on it.
+         *
+         *
+         * @param modal
          */
         const closeModal = function(modal) {
             modal.hide();
@@ -751,8 +644,14 @@
             currentEditingMsgId = null;
         };
 
+        /**
+         * Displays an error message in a modal.
+         * This function closes the current modal, updates the error modal with the provided message,
+         * and opens the error modal to display the message to the user.
+         *
+         * @param errorMsg
+         */
         const showError = function(errorMsg){
-
             closeModal(editModal);
             modalErrorInput.innerHTML = errorMsg;
             openModal(errorModal);
@@ -766,7 +665,6 @@
             deleteMsg,
             getEditingMessageData,
             closeEditModal,
-            //closeModal,
             updateMessageInUI,
             clearEditingState,
             appendNewMessage,

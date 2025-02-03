@@ -1,4 +1,3 @@
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -35,7 +34,6 @@ app.use(session({
     saveUninitialized: false, // don't create session until something stored
     cookie: { maxAge: 10 * 60 * 1000 } // milliseconds
 }));
-
 
 app.use(flash());
 
