@@ -1,4 +1,5 @@
 
+const CookieModule = (function () {
 /**
  * This function sets a cookie with a specified name, value, and expiration time in seconds.
  *
@@ -27,5 +28,8 @@ const  getCookie = function getCookie(name) {
     else return null;
 };
 
+    return { setCookie, getCookie };
+})();
 
-export {setCookie,getCookie};
+export const setCookie = CookieModule.setCookie;
+export const getCookie = CookieModule.getCookie;
