@@ -41,6 +41,8 @@
      */
     const ManagerModule = (function (){
 
+        const spinner = document.querySelector("#loadingSpinner");
+
         /**
          * This function fetches and displays messages from the server. It handles different response statuses
          * and updates the UI accordingly. It also logs any errors or unexpected response formats.
@@ -70,8 +72,7 @@
                 }
             }
             catch (error) {
-                console.error('Error fetching messages from server:', error.message || error);
-                return null;
+                ChatroomUIModule.showError(error.message || error);
             }
         };
 
@@ -129,6 +130,9 @@
                 return;
             }
 
+            // setting the spinner
+            spinner.classList.remove("d-none");
+
             try {
                 // Call API with the data
                 const result = await ChatroomAPIModule.fetchSave(messageData.currentEditingMsgId, messageData.newText);
@@ -141,8 +145,11 @@
                 }
             }
             catch (error) {
-                console.error(`Error saving message (ID: ${messageData.currentEditingMsgId}): "${messageData.newText}"`,error.message || error);
-                return null;
+                ChatroomUIModule.showError(error.message||error);
+            }
+            finally {
+                // turn off spinner
+                spinner.classList.add("d-none");
             }
         };
 
@@ -173,8 +180,7 @@
                 }
             }
             catch (error) {
-                console.error(`Error sending message: "${message}"`, error.message || error);
-                return null;
+                ChatroomUIModule.showError(error.message || error);
             }
         };
 
@@ -186,6 +192,8 @@
          * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
          */
         const handleDelete = async function (msgId){
+
+            spinner.classList.remove("d-none");
             try {
                 const message = await ChatroomAPIModule.fetchDelete(msgId);
 
@@ -195,8 +203,11 @@
                 }
             }
             catch (error) {
-                console.error(`Error deleting message with ID ${msgId}:`, error.message || error);
-                return null;
+                ChatroomUIModule.showError(error.message || error);
+            }
+            finally {
+                // turn off spinner
+                spinner.classList.add("d-none");
             }
         }
 
@@ -226,7 +237,7 @@
      */
     const ChatroomAPIModule = (function() {
 
-        const spinner = document.querySelector("#loadingSpinner");
+        // const spinner = document.querySelector("#loadingSpinner");
 
         /**
          * This function handles the process of sending a new message. It sends a request to the server with the message content.
@@ -240,7 +251,7 @@
             // setting the spinner
             // spinner.classList.remove("d-none");
 
-            try {
+            //try {
                 const response = await fetch("/api/send-message", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -251,12 +262,12 @@
                 console.log(validResponse);
 
                 return await validResponse.json();
-            }
-            catch (error) {
-                // console.error(`Error fetching messages from database: ${error}`);
-                // return null;
-                ChatroomUIModule.showError(error.message || error);
-            }
+            //}
+            // catch (error) {
+            //     // console.error(`Error fetching messages from database: ${error}`);
+            //     // return null;
+            //     ChatroomUIModule.showError(error.message || error);
+            // }
             // finally {
             //     // turn off spinner
             //     spinner.classList.add("d-none");
@@ -271,7 +282,7 @@
          */
         const fetchMessages = async function (lastUpdate) {
 
-            try {
+            //try {
                 const response = await fetch('/api/existing-messages', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -282,12 +293,12 @@
                 console.log(validResponse);
 
                 return await validResponse.json();
-            }
-            catch (error) {
-                // console.error(`Error fetching messages from database: ${error}`);
-                // return null;
-                ChatroomUIModule.showError(error.message || error);
-            }
+            //}
+            // catch (error) {
+            //     // console.error(`Error fetching messages from database: ${error}`);
+            //     // return null;
+            //     ChatroomUIModule.showError(error.message || error);
+            // }
         };
 
         /**
@@ -299,12 +310,12 @@
         const fetchDelete = async function (msgId) {
 
             // setting the spinner
-            spinner.classList.remove("d-none");
+          //  spinner.classList.remove("d-none");
 
-            try {
+           // try {
                 // find and delete message from database
                 const response = await fetch('/api/find-and-delete-msg', {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({msgId})
                 });
@@ -313,16 +324,16 @@
                 console.log(validResponse);
 
                 return await validResponse.json();
-            }
-            catch (error) {
-                // console.error(`Error fetching delete from database: ${error}`);
-                // return null;
-                ChatroomUIModule.showError(error.message || error);
-            }
-            finally {
-                // turn off spinner
-                spinner.classList.add("d-none");
-            }
+            //}
+            // catch (error) {
+            //     // console.error(`Error fetching delete from database: ${error}`);
+            //     // return null;
+            //     ChatroomUIModule.showError(error.message || error);
+            // }
+            // finally {
+            //     // turn off spinner
+            //     spinner.classList.add("d-none");
+            // }
         };
 
         /**
@@ -334,12 +345,12 @@
          */
         const fetchSave = async function (msgId, newInput) {
 
-            // setting the spinner
-            spinner.classList.remove("d-none");
-
-            try {
+            // // setting the spinner
+            // spinner.classList.remove("d-none");
+            //
+            // try {
                 const response = await fetch('/api/save-msg', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({msgId, newInput})
                 });
@@ -348,16 +359,17 @@
                 console.log(validateResponse);
 
                 return await validateResponse.json();
-            }
-            catch (error) {
-                ChatroomUIModule.showError(error.message || error);
-                //console.error(`Error fetching save from database: ${error}`);
-                //return null;
-            }
-            finally {
-                // turn off spinner
-                spinner.classList.add("d-none");
-            }
+           // }
+            // catch (error) {
+            //     console.error( error);
+            //     ChatroomUIModule.showError(error.message);
+            //     //console.error(`Error fetching save from database: ${error}`);
+            //     //return null;
+            // }
+            // finally {
+            //     // turn off spinner
+            //     spinner.classList.add("d-none");
+            // }
         };
 
         // /**
@@ -411,15 +423,15 @@
          * @param {Response} response - The fetch response to be validated.
          * @returns {Promise<never>|*} - Returns the response if status is valid; otherwise, redirects and rejects.
          */
-        function status(response) {
+       async function status(response) {
 
             if (response.status >= 200 && response.status < 300) {
                 return response
             }
             else if (response.status === 400 || response.status === 405 ){ // for input validation failure, bad request // Method Not Allowed
                 //window.location.href = '/chatroom';
-                //return Promise.reject(new Error("Bad Request - 400"));
-                return response;
+                return Promise.reject(await response.json());
+                //return response;
             }
             else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
@@ -741,9 +753,7 @@
 
         const showError = function(errorMsg){
 
-            if (editModal.classList.contains('show')) {
-                closeModal(editModal);
-            }
+            closeModal(editModal);
             modalErrorInput.innerHTML = errorMsg;
             openModal(errorModal);
         };

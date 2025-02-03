@@ -137,8 +137,8 @@ exports.findAndDeleteMsg = async (req, res, next) => {
  */
 exports.saveMsg = async (req, res, next) => {
     try{
-        //const messageId = req.body.msgId;
-        const messageId = null;
+
+        const messageId = req.body.msgId;
         const newMsg = req.body.newInput;
         const sessionId = req.session.userId;
 
@@ -156,19 +156,6 @@ exports.saveMsg = async (req, res, next) => {
             return res.status(405).json({ message: 'No permission to save message.' });
         }
 
-        // if(await checkPermission(messageId,sessionId)) {
-        //
-        //     await Message.update(
-        //         {input: newMsg},
-        //         {where: {id: messageId}});
-        //
-        //
-        //     //add here
-        //     res.json({updated: true, newInput: newMsg});
-        // }
-        // else{
-        //     return res.status(405).json({ message:'No permission to save message.'});
-        // }
     }
     catch (err) {
         // Use the centralized error handler
