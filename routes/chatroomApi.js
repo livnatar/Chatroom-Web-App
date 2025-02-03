@@ -10,11 +10,11 @@ router.use(checkSession);
 // Handle POST request to get existing messages in the chatroom
 router.post('/existing-messages', chatroomAPIController.existingMessages);
 
-// Handle POST request to find and delete a specific message in the chatroom
-router.post('/find-and-delete-msg', chatroomAPIController.findAndDeleteMsg);
+// Handle DELETE request to find and delete a specific message in the chatroom
+router.delete('/find-and-delete-msg', chatroomAPIController.findAndDeleteMsg);
 
-// Handle POST request to save a new message in the chatroom
-router.post('/save-msg', chatroomAPIController.saveMsg);
+// Handle PUT request to save a new message in the chatroom
+router.put('/save-msg', chatroomAPIController.saveMsg);
 
 // Handle POST request to send a new message in the chatroom
 router.post('/send-message',chatroomAPIController.sendMsg);
