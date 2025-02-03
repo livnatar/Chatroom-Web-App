@@ -82,36 +82,38 @@ const POLLING = 10000 ;
          *
          * @param {string} msgId - The ID of the message to edit.
          * @param {string} msg - The content of the message to edit.
-         * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * //@returns {Promise<void>} - A promise that resolves when the function completes its execution.
          */
-        const handleEdit = async function(msgId, msg){
-            try {
-                const message = await ChatroomAPIModule.fetchEdit(msgId);
-                if (message.edited) {
+        const handleEdit = function(msgId, msg){
+       // const handleEdit = async function(msgId, msg){
+            //try {
+                  //const message = await ChatroomAPIModule.fetchEdit(msgId);
+               // if (message.edited) {
                     ChatroomUIModule.editMsg(msgId, msg);
-                }
-            }
-            catch (error) {
-                console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
-                return null;
-            }
+               // }
+            //}
+            // catch (error) {
+            //     console.error(`Error editing message (ID: ${msgId}): "${msg}"`, error.message || error);
+            //     return null;
+            // }
         };
 
         /**
          * This function handles the cancellation of message editing. It first checks the session with the server,
          * then calls the UI module to cancel the message editing process.
          *
-         * @returns {Promise<void>} - A promise that resolves when the function completes its execution.
+         * //@returns {Promise<void>} - A promise that resolves when the function completes its execution.
          */
-        const handleCancel = async function(){
-            try {
-                   await ChatroomAPIModule.fetchCheckSession();
+        //const handleCancel = async function(){
+        const handleCancel = function(){
+            //try {
+                  // await ChatroomAPIModule.fetchCheckSession();
                    ChatroomUIModule.cancelMsg();
-            }
-            catch (error) {
-                console.error("Error canceling message editing: Session check failed.", error.message || error);
-                return null;
-            }
+            // }
+            // catch (error) {
+            //     console.error("Error canceling message editing: Session check failed.", error.message || error);
+            //     return null;
+            // }
         };
 
         /**
@@ -135,7 +137,7 @@ const POLLING = 10000 ;
                 // if the message has been updated, call UI Module to update the message
                 if (result.updated) {
                     ChatroomUIModule.updateMessageInUI(messageData.currentEditingMsgId, messageData.newText);
-                    ChatroomUIModule.closeModal();
+                    ChatroomUIModule.closeEditModal();
                     ChatroomUIModule.clearEditingState();
                 }
             }
@@ -225,6 +227,8 @@ const POLLING = 10000 ;
      */
     const ChatroomAPIModule = (function() {
 
+        const spinner = document.querySelector("#loadingSpinner");
+
         /**
          * This function handles the process of sending a new message. It sends a request to the server with the message content.
          * If the request is successful, the server responds with the message status.
@@ -233,6 +237,10 @@ const POLLING = 10000 ;
          * @returns {Promise<Object>} - A promise resolving to the server response containing message status.
          */
         const fetchNewMessage = async function(message) {
+
+            // setting the spinner
+            // spinner.classList.remove("d-none");
+
             try {
                 const response = await fetch("/api/send-message", {
                     method: "POST",
@@ -246,9 +254,14 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.error(`Error fetching messages from database: ${error}`);
-                return null;
+                // console.error(`Error fetching messages from database: ${error}`);
+                // return null;
+                ChatroomUIModule.showError(error.message || error);
             }
+            // finally {
+            //     // turn off spinner
+            //     spinner.classList.add("d-none");
+            // }
         };
 
         /**
@@ -258,6 +271,7 @@ const POLLING = 10000 ;
          * @returns {Promise<Object>} - A promise resolving to the server response containing message data.
          */
         const fetchMessages = async function (lastUpdate) {
+
             try {
                 const response = await fetch('/api/existing-messages', {
                     method: 'POST',
@@ -271,8 +285,9 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.error(`Error fetching messages from database: ${error}`);
-                return null;
+                // console.error(`Error fetching messages from database: ${error}`);
+                // return null;
+                ChatroomUIModule.showError(error.message || error);
             }
         };
 
@@ -283,6 +298,10 @@ const POLLING = 10000 ;
          * @returns {Promise<Object>} - A promise resolving to the server response indicating success or failure.
          */
         const fetchDelete = async function (msgId) {
+
+            // setting the spinner
+            spinner.classList.remove("d-none");
+
             try {
                 // find and delete message from database
                 const response = await fetch('/api/find-and-delete-msg', {
@@ -297,8 +316,13 @@ const POLLING = 10000 ;
                 return await validResponse.json();
             }
             catch (error) {
-                console.error(`Error fetching delete from database: ${error}`);
-                return null;
+                // console.error(`Error fetching delete from database: ${error}`);
+                // return null;
+                ChatroomUIModule.showError(error.message || error);
+            }
+            finally {
+                // turn off spinner
+                spinner.classList.add("d-none");
             }
         };
 
@@ -310,6 +334,10 @@ const POLLING = 10000 ;
          * @returns {Promise<Object>} - A promise resolving to the server response.
          */
         const fetchSave = async function (msgId, newInput) {
+
+            // setting the spinner
+            spinner.classList.remove("d-none");
+
             try {
                 const response = await fetch('/api/save-msg', {
                     method: 'POST',
@@ -323,55 +351,60 @@ const POLLING = 10000 ;
                 return await validateResponse.json();
             }
             catch (error) {
-                console.error(`Error fetching save from database: ${error}`);
-                return null;
+                ChatroomUIModule.showError(error.message || error);
+                //console.error(`Error fetching save from database: ${error}`);
+                //return null;
+            }
+            finally {
+                // turn off spinner
+                spinner.classList.add("d-none");
             }
         };
 
-        /**
-         * Fetches the data for editing a message by sending a request to the server.
-         * It validates the server's response and returns the parsed JSON data.
-         *
-         * @param msgId - The ID of the message to fetch for editing.
-         * @returns {Promise<*>} - A promise that resolves to the message data (JSON format).
-         */
-        const fetchEdit = async function (msgId) {
-            try {
-                const response = await fetch('/api/edit-message',{
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({msgId})
-                });
-                const validResponse = await status(response);
-                console.log(validResponse);
-                return validResponse.json();
-            }
-            catch (error) {
-                console.error(`Error checking session: ${error.message}`);
-                return null;
-            }
-        };
+        // /**
+        //  * Fetches the data for editing a message by sending a request to the server.
+        //  * It validates the server's response and returns the parsed JSON data.
+        //  *
+        //  * @param msgId - The ID of the message to fetch for editing.
+        //  * @returns {Promise<*>} - A promise that resolves to the message data (JSON format).
+        //  */
+        // const fetchEdit = async function (msgId) {
+        //     try {
+        //         const response = await fetch('/api/edit-message',{
+        //             method: 'POST',
+        //             headers: {'Content-Type': 'application/json'},
+        //             body: JSON.stringify({msgId})
+        //         });
+        //         const validResponse = await status(response);
+        //         console.log(validResponse);
+        //         return validResponse.json();
+        //     }
+        //     catch (error) {
+        //         console.error(`Error checking session: ${error.message}`);
+        //         return null;
+        //     }
+        // };
 
-        /**
-         * Checks the current session status by making a GET request to the /api endpoint.
-         *
-         * @returns {Promise<Object>} - A promise resolving to the server's response indicating session status.
-         * @throws {Error} - Throws an error if the session check fails.
-         */
-        const fetchCheckSession = async function () {
-            try {
-                const response = await fetch('/api');
-                const validResponse = await status(response);
-                console.log(validResponse);
-
-                return validResponse.json();
-            }
-            catch (error) {
-                // add message display here
-                console.error(`Error checking session: ${error.message}`);
-                return null;
-            }
-        };
+        // /**
+        //  * Checks the current session status by making a GET request to the /api endpoint.
+        //  *
+        //  * @returns {Promise<Object>} - A promise resolving to the server's response indicating session status.
+        //  * @throws {Error} - Throws an error if the session check fails.
+        //  */
+        // const fetchCheckSession = async function () {
+        //     try {
+        //         const response = await fetch('/api');
+        //         const validResponse = await status(response);
+        //         console.log(validResponse);
+        //
+        //         return validResponse.json();
+        //     }
+        //     catch (error) {
+        //         // add message display here
+        //         console.error(`Error checking session: ${error.message}`);
+        //         return null;
+        //     }
+        // };
 
         /**
          * Handles the response status and redirects based on the status code.
@@ -384,18 +417,19 @@ const POLLING = 10000 ;
             if (response.status >= 200 && response.status < 300) {
                 return response
             }
-            else if (response.status === 400){ // for input validation failure, bad request
-                window.location.href = '/chatroom';
-                return Promise.reject(new Error("Bad Request - 400"));
+            else if (response.status === 400 || response.status === 405 ){ // for input validation failure, bad request // Method Not Allowed
+                //window.location.href = '/chatroom';
+                //return Promise.reject(new Error("Bad Request - 400"));
+                return response;
             }
             else if (response.status === 401) {  // the session is expired
                 window.location.href = '/login';
-                return Promise.reject(new Error("Unauthorized - 401"));
+                //return Promise.reject(new Error("Unauthorized - 401"));
             }
             else
             {
                 window.location.href = '/error';
-                return Promise.reject(new Error("Unhandled error"));
+               // return Promise.reject(new Error("Unhandled error"));
             }
         }
 
@@ -404,8 +438,8 @@ const POLLING = 10000 ;
             fetchMessages,
             fetchDelete,
             fetchSave,
-            fetchCheckSession,
-            fetchEdit,
+            //fetchCheckSession,
+            //fetchEdit,
             status
         }
     })();
@@ -435,7 +469,9 @@ const POLLING = 10000 ;
         let messageInput = document.getElementById("message");
         let chatMessagesDiv = document.getElementById('chatMessages');
         let modalInput = document.getElementById('editMessageInput');
-        const modal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+        const editModal = new bootstrap.Modal(document.getElementById('editMessageModal'));
+        const errorModal = new bootstrap.Modal(document.getElementById("errorModal"));
+        let modalErrorInput = document.getElementById('errorText');
 
 
         /**
@@ -593,7 +629,7 @@ const POLLING = 10000 ;
             modalInput.value = currentMessageText; // Pre-fill the modal with the current message
 
             // Show the modal using Bootstrap
-            openModal();
+            openModal(editModal);
         };
 
         /**
@@ -601,7 +637,7 @@ const POLLING = 10000 ;
          * the tracking of the currently edited message.
          */
         const cancelMsg = function () {
-            closeModal();
+            closeModal(editModal);
             currentEditingMsgId = null;
         };
 
@@ -670,15 +706,20 @@ const POLLING = 10000 ;
          * It uses Bootstrap's Modal component to display the modal by targeting the
          * modal element with the ID `editMessageModal`.
          */
-        const openModal = function() {
+        const openModal = function(modal) {
             modal.show();
         };
+
+       const closeEditModal  = function(){
+           closeModal(editModal);
+       };
+
 
         /**
          * This function closes the modal that is used for editing a message.
          * It uses Bootstrap's Modal component to hide the modal.
          */
-        const closeModal = function() {
+        const closeModal = function(modal) {
             modal.hide();
         };
 
@@ -699,6 +740,11 @@ const POLLING = 10000 ;
             currentEditingMsgId = null;
         };
 
+        const showError = function(errorMsg){
+            modalErrorInput.innerHTML = errorMsg;
+            openModal(errorModal);
+        };
+
         return {
             displayMessages,
             editMsg,
@@ -706,12 +752,14 @@ const POLLING = 10000 ;
             clearMessages,
             deleteMsg,
             getEditingMessageData,
-            closeModal,
+            closeEditModal,
+            //closeModal,
             updateMessageInUI,
             clearEditingState,
             appendNewMessage,
             getMessageContent,
-            clearMsgBox
+            clearMsgBox,
+            showError
         };
     })();
 

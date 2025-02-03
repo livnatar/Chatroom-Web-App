@@ -83,9 +83,11 @@ exports.existingMessages = async (req, res, next) => {
             // Case: No changes since the last update
             return res.json({ status: 'NO_CHANGE', messages: [] });
         }
-    } catch (error) {
-        console.error('Error fetching messages:', error);
-        res.status(500).json({ error: 'Failed to fetch messages' });
+    } catch (err) {
+        // console.error('Error fetching messages:', error);
+        // res.status(500).json({ error: 'Failed to fetch messages' });
+        // Use the centralized error handler
+        return handleError(err, req, res);
     }
 };
 
@@ -114,12 +116,14 @@ exports.findAndDeleteMsg = async (req, res, next) => {
         }
         else{
             console.error('No permission to delete message.');
-            return res.status(500);
+            return res.status(405).json({ message:'No permission to delete message.'});
         }
     }
-    catch (error) {
-        console.error('Error deleting message:', error);
-        return res.status(500);
+    catch (err) {
+        //console.error('Error deleting message:', error);
+        //return res.status(500);
+        // Use the centralized error handler
+        return handleError(err, req, res);
     }
 };
 
@@ -135,12 +139,21 @@ exports.saveMsg = async (req, res, next) => {
     try{
         const messageId = req.body.msgId;
         const newMsg = req.body.newInput;
+        const sessionId = req.session.userId;
 
-        await Message.update(
-            { input: newMsg },
-            { where: { id: messageId } });
+        if(await checkPermission(messageId,sessionId)) {
 
-        res.json({ updated: true, newInput: newMsg });
+            await Message.update(
+                {input: newMsg},
+                {where: {id: messageId}});
+
+
+            //add here
+            res.json({updated: true, newInput: newMsg});
+        }
+        else{
+            return res.status(405).json({ message:'No permission to save message.'});
+        }
     }
     catch (err) {
         // Use the centralized error handler
@@ -196,26 +209,26 @@ exports.sendMsg = async (req, res, next) => {
     }
 };
 
-exports.editMsg = async (req, res, next) =>{
-
-    try {
-        const messageId = req.body.msgId;
-        const sessionId = req.session.userId;
-        if( await checkPermission(messageId,sessionId)){
-
-            //add here
-            res.json({ edited: true });
-        }
-        else{
-            console.error('No permission to edit message.');
-            return res.status(500);
-        }
-    }
-    catch (error) {
-        console.error('Error deleting message:', error);
-        return res.status(500);
-    }
-};
+// exports.editMsg = async (req, res, next) =>{
+//
+//     try {
+//         const messageId = req.body.msgId;
+//         const sessionId = req.session.userId;
+//         if( await checkPermission(messageId,sessionId)){
+//
+//             //add here
+//             res.json({ edited: true });
+//         }
+//         else{
+//             console.error('No permission to edit message.');
+//             return res.status(500);
+//         }
+//     }
+//     catch (error) {
+//         console.error('Error deleting message:', error);
+//         return res.status(500);
+//     }
+// };
 
 /**
  * Utility function to handle errors in a standardized way.
@@ -230,14 +243,14 @@ exports.editMsg = async (req, res, next) =>{
 function handleError(err, req, res) {
     // Handle validation errors
     if (err instanceof Sequelize.ValidationError) {
-        req.flash('msg', 'Invalid input, message cannot be empty');
-        return res.status(400);
+        //req.flash('msg', 'Invalid input, message cannot be empty');
+        return res.status(400).json({ message:'Invalid input, message cannot be empty'});
     }
 
     // Handle database errors
     else if (err instanceof Sequelize.DatabaseError) {
-        req.flash('msg', 'A database error occurred, please try again later.');
-        return res.status(400);
+        //req.flash('msg', 'A database error occurred, please try again later.');
+        return res.status(400).json({message: 'A database error occurred, please try again later.'});
     }
 
     // Handle unexpected errors

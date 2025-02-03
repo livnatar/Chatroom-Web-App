@@ -20,7 +20,7 @@ router.post('/save-msg', chatroomAPIController.saveMsg);
 router.post('/send-message',chatroomAPIController.sendMsg);
 
 // Handle POST request to edit a message in the chatroom
-router.post('/edit-message',chatroomAPIController.editMsg);
+//router.post('/edit-message',chatroomAPIController.editMsg);
 
 
 module.exports = router;
