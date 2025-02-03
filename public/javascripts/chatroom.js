@@ -154,6 +154,9 @@
                 return;
             }
 
+            // setting the spinner
+            spinner.classList.remove("d-none");
+
             try {
                 // Call API with the data
                 const result = await ChatroomAPIModule.fetchNewMessage(message);
@@ -168,6 +171,10 @@
             }
             catch (error) {
                 ChatroomUIModule.showError(error.message || error);
+            }
+            finally {
+                // turn off spinner
+                spinner.classList.add("d-none");
             }
         };
 
