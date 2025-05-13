@@ -1,6 +1,6 @@
 # Chatroom Web App
 
-A web application built with Node.js, Express, and EJS that allows users to register, log in, and participate in a basic chatroom. Includes session management, form validation, and a RESTful API.
+A web application built with Node.js, Express, and EJS that allows users to register, log in, and participate in a basic chatroom. Includes session management, form validation, and a REST API.
 
 ## Features
 
