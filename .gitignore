@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# Environment files
+.env
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# VSCode or IDE settings (optional)
+.vscode/
+.idea/
+
+# npm files
+package-lock.json
+package.json
